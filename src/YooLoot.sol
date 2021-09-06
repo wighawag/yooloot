@@ -132,14 +132,14 @@ contract YooLoot {
         uint256 theWinner;
         uint256 score;
         for (uint8 i = 0; i < 8; i++) {
-            uint8 value = 0;
+            uint8 extra = 0;
             uint8 tmpScore;
             for (uint8 j = 0; j < 8; j++) {
                 if (winners[j] == 0) {
-                    value += j;
+                    extra += (j + 1);
                 } else if (winners[j] == winners[i]) {
-                    tmpScore = value + j;
-                    value = 0;
+                    tmpScore = extra + (j + 1);
+                    extra = 0;
                 }
             }
             if (tmpScore >= score) {
@@ -148,6 +148,37 @@ contract YooLoot {
             }
         }
         return _deposits[theWinner];
+    }
+
+    // solhint-disable-next-line code-complexity
+    function individualScore(uint256 lootId) public view returns (uint256 score) {
+        require(
+            lootId > 0 && lootId != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,
+            "INVALID_LOOT"
+        );
+        require(block.timestamp - _paramaters.startTime > 2 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_OVER");
+        uint256 extra = 0;
+        for (uint8 round = 0; round < 8; round++) {
+            bool anyone = false;
+            for (uint8 power = 126; power > 0; power--) {
+                uint256 lootIdHere = _rounds[round][power - 1];
+                if (lootIdHere == lootId) {
+                    score += (round + 1) + extra;
+                    anyone = true;
+                    break;
+                } else if (
+                    lootIdHere > 0 && lootIdHere != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+                ) {
+                    anyone = true;
+                    break;
+                }
+            }
+            if (!anyone) {
+                extra += (round + 1);
+            } else {
+                extra = 0;
+            }
+        }
     }
 
     function claimVictoryLoot(uint256 lootToPick) external {

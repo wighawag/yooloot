@@ -56,9 +56,8 @@ async function participate(user: User): Promise<FullDeckInfo> {
   );
 
   const deckPower = await user.YooLoot.getDeckPower(tokenId, deck);
-  const tokenURI = await user.Loot.tokenURI(tokenId);
   console.log({
-    tokenURI,
+    // tokenURI,
     tokenId,
     address: user.address,
     deckPower,
@@ -154,7 +153,15 @@ describe('YooLoot', function () {
     await increaseTime(7 * 24 * 60 * 60, true);
 
     const winner = await YooLoot.winner();
-    console.log({winner, user0: users[0].address, user1: users[1].address});
+    const scoreFor0 = (await YooLoot.individualScore(user0.tokenId)).toNumber();
+    const scoreFor1 = (await YooLoot.individualScore(user1.tokenId)).toNumber();
+    console.log({
+      winner,
+      user0: users[0].address,
+      user1: users[1].address,
+      scoreFor0,
+      scoreFor1,
+    });
 
     await increaseTime(7 * 24 * 60 * 60, true);
 

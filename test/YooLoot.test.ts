@@ -47,13 +47,23 @@ type User = {
 };
 
 async function participate(user: User): Promise<FullDeckInfo> {
-  const tokenId = '' + Math.floor(Math.random() * 8000);
+  const tokenId = '' + Math.floor(Math.random() * 7000);
   await waitFor(user.Loot.claim(tokenId));
   await waitFor(user.Loot.setApprovalForAll(user.YooLoot.address, true));
   const {deck, deckHash, secret} = createDeck(
     tokenId,
     [0, 1, 2, 3, 4, 5, 6, 7]
   );
+
+  const deckPower = await user.YooLoot.getDeckPower(tokenId, deck);
+  const tokenURI = await user.Loot.tokenURI(tokenId);
+  console.log({
+    tokenURI,
+    tokenId,
+    address: user.address,
+    deckPower,
+  });
+
   await waitFor(user.YooLoot.commitLootDeck(tokenId, deckHash));
   return {
     deck,
@@ -127,7 +137,7 @@ describe('YooLoot', function () {
 
     await increaseTime(7 * 24 * 60 * 60, true);
 
-    await users[0].YooLoot.withdraw(tokenId);
+    await users[0].YooLoot.withdrawAndGetXP(tokenId);
   });
 
   it('2 players: commit wait, reveal, withdraw', async function () {
@@ -148,8 +158,8 @@ describe('YooLoot', function () {
 
     await increaseTime(7 * 24 * 60 * 60, true);
 
-    await users[0].YooLoot.withdraw(user0.tokenId);
+    await users[0].YooLoot.withdrawAndGetXP(user0.tokenId);
 
-    await users[1].YooLoot.withdraw(user1.tokenId);
+    await users[1].YooLoot.withdrawAndGetXP(user1.tokenId);
   });
 });

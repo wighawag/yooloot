@@ -2,6 +2,7 @@
 pragma solidity 0.8.7;
 
 import "./interfaces/ILoot.sol";
+import "./interfaces/ILootXPRegistry.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
@@ -9,37 +10,79 @@ contract YooLoot {
     event LootDeckSubmitted(address indexed player, uint256 indexed lootId, bytes32 deckHash);
     event LootDeckRevealed(uint256 indexed lootId, uint8[8] deck);
 
-    uint256 public startTime;
-    bool public winnerGetLoot;
-    ILoot private _loot;
+    struct Parameters {
+        ILoot loot;
+        uint40 startTime;
+        uint24 periodLength;
+        bool winnerGetLoot;
+    }
+
+    Parameters private _paramaters;
 
     mapping(uint256 => address) private _deposits;
     mapping(uint256 => bytes32) private _deckHashes;
     mapping(uint8 => mapping(uint8 => uint256)) private _rounds;
 
-    constructor(ILoot loot, bool _winnerGetLoot) {
-        init(loot, _winnerGetLoot);
+    address private immutable _loot1;
+    address private immutable _loot2;
+    address private immutable _loot3;
+
+    ILootXPRegistry private immutable _lootXPRegistry;
+
+    constructor(
+        ILootXPRegistry lootXPRegistry,
+        address[3] memory authorizedLoots,
+        ILoot loot,
+        bool winnerGetLoot,
+        uint24 periodLength
+    ) {
+        _lootXPRegistry = lootXPRegistry;
+        _loot1 = authorizedLoots[0];
+        _loot2 = authorizedLoots[1];
+        _loot3 = authorizedLoots[2];
+        _init(loot, winnerGetLoot, periodLength);
     }
 
-    function init(ILoot loot, bool _winnerGetLoot) public {
-        require(startTime == 0, "ALREADY_INITIALISED");
-        _loot = loot;
-        winnerGetLoot = _winnerGetLoot;
-        startTime = block.timestamp;
+    function _init(
+        ILoot loot,
+        bool winnerGetLoot,
+        uint24 periodLength
+    ) internal {
+        require(_paramaters.startTime == 0, "ALREADY_INITIALISED");
+        require(periodLength > 6 hours, "PERIOD_TOO_SHORT");
+        require(periodLength <= 31 days, "PERIOD_TOO_LONG");
+        _paramaters.loot = loot;
+        _paramaters.winnerGetLoot = winnerGetLoot;
+        _paramaters.startTime = uint40(block.timestamp);
+        _paramaters.periodLength = periodLength;
     }
 
-    function clone(ILoot loot, bool _winnerGetLoot) external returns (address) {
+    function init(
+        ILoot loot,
+        bool winnerGetLoot,
+        uint24 periodLength
+    ) public {
+        require(address(loot) == _loot1 || address(loot) == _loot2 || address(loot) == _loot3, "INVALID LOOT");
+        _init(loot, winnerGetLoot, periodLength);
+    }
+
+    function clone(
+        ILoot loot,
+        bool winnerGetLoot,
+        uint24 periodLength
+    ) external returns (address) {
         address yooloot = Clones.clone(address(this));
-        YooLoot(yooloot).init(loot, _winnerGetLoot);
+        YooLoot(yooloot).init(loot, winnerGetLoot, periodLength);
+        _lootXPRegistry.setSource(yooloot, true);
         return yooloot;
     }
 
     function commitLootDeck(uint256 lootId, bytes32 deckHash) external {
-        require(block.timestamp - startTime < 1 weeks, "JOINING_PERIOD_OVER");
+        require(block.timestamp - _paramaters.startTime < 1 * _paramaters.periodLength, "JOINING_PERIOD_OVER");
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "INVALID HASH");
         _deckHashes[lootId] = deckHash;
         _deposits[lootId] = msg.sender;
-        _loot.transferFrom(msg.sender, address(this), lootId);
+        _paramaters.loot.transferFrom(msg.sender, address(this), lootId);
         emit LootDeckSubmitted(msg.sender, lootId, deckHash);
     }
 
@@ -48,8 +91,8 @@ contract YooLoot {
         uint8[8] calldata deck,
         bytes32 secret
     ) external {
-        require(block.timestamp - startTime > 1 weeks, "REVEAL_PERIOD_NOT_STARTED");
-        require(block.timestamp - startTime < 2 weeks, "REVEAL_PERIOD_OVER");
+        require(block.timestamp - _paramaters.startTime > 1 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_STARTED");
+        require(block.timestamp - _paramaters.startTime < 2 * _paramaters.periodLength, "REVEAL_PERIOD_OVER");
         bytes32 deckHash = _deckHashes[lootId];
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "ALREADY_REVEALED");
         require(keccak256(abi.encodePacked(secret, lootId, deck)) == deckHash, "INVALID_SECRET'");
@@ -58,12 +101,12 @@ contract YooLoot {
         for (uint8 i = 0; i < 8; i++) {
             uint8 index = deck[i];
             indicesUsed[index]++;
-            uint8 lootItemGreatness = pluckGreatness(lootId, index);
-            uint256 current = _rounds[i][lootItemGreatness];
+            uint8 power = pluckPower(lootId, index);
+            uint256 current = _rounds[i][power];
             if (current == 0) {
-                _rounds[i][lootItemGreatness] = lootId;
+                _rounds[i][power] = lootId;
             } else if (current != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
-                _rounds[i][lootItemGreatness] = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+                _rounds[i][power] = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
             }
         }
         for (uint8 i = 0; i < 8; i++) {
@@ -74,13 +117,13 @@ contract YooLoot {
 
     // solhint-disable-next-line code-complexity
     function winner() public view returns (address) {
-        require(block.timestamp - startTime > 2 weeks, "REVEAL_PERIOD_NOT_OVER");
+        require(block.timestamp - _paramaters.startTime > 2 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_OVER");
         uint256[8] memory winners;
-        for (uint8 i = 0; i < 8; i++) {
-            for (uint8 j = 0; j < 20; j++) {
-                uint256 lootId = _rounds[i][j];
+        for (uint8 round = 0; round < 8; round++) {
+            for (uint8 power = 126; power > 0; power--) {
+                uint256 lootId = _rounds[round][power - 1];
                 if (lootId > 0 && lootId != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
-                    winners[i] = lootId;
+                    winners[round] = lootId;
                     break;
                 }
             }
@@ -108,31 +151,106 @@ contract YooLoot {
     }
 
     function claimVictoryLoot(uint256 lootToPick) external {
-        require(winnerGetLoot, "NO_LOOT_TO_WIN");
-        require(block.timestamp - startTime < 3 weeks, "VICTORY_PERIOD_OVER");
+        require(_paramaters.winnerGetLoot, "NO_LOOT_TO_WIN");
+        require(block.timestamp - _paramaters.startTime < 3 * _paramaters.periodLength, "VICTORY_PERIOD_OVER");
         require(winner() == msg.sender, "NOT_WINNER");
         require(_deposits[lootToPick] != msg.sender, "ALREADY_OWNER");
-        _loot.transferFrom(address(this), msg.sender, lootToPick);
-        startTime = 1;
+        _paramaters.loot.transferFrom(address(this), msg.sender, lootToPick);
+        _paramaters.startTime = 1;
     }
 
     function claimVictoryERC20(IERC20 token) external {
-        require(address(token) != address(_loot), "INVALID_ERC20");
+        require(address(token) != address(_paramaters.loot), "INVALID_ERC20");
         require(winner() == msg.sender, "NOT_WINNER");
         token.transfer(msg.sender, token.balanceOf(address(this)));
     }
 
-    function withdraw(uint256 loot) external {
-        require(winnerGetLoot && block.timestamp - startTime > 3 weeks, "VICTORY_WITHDRAWL_NOT_OVER");
-        require(_deposits[loot] == msg.sender, "NOT_OWNER");
+    function withdrawAndGetXP(uint256 lootId) external {
         require(
-            _deckHashes[loot] == 0x0000000000000000000000000000000000000000000000000000000000000001,
+            _paramaters.winnerGetLoot && block.timestamp - _paramaters.startTime > 3 * _paramaters.periodLength,
+            "VICTORY_WITHDRAWL_NOT_OVER"
+        );
+        require(_deposits[lootId] == msg.sender, "NOT_OWNER");
+        require(
+            _deckHashes[lootId] == 0x0000000000000000000000000000000000000000000000000000000000000001,
             "DID_NOT_REVEAL"
         );
-        _loot.transferFrom(address(this), msg.sender, loot);
+        _paramaters.loot.transferFrom(address(this), msg.sender, lootId);
+        if (winner() == msg.sender) {
+            _lootXPRegistry.addXp(lootId, 1000);
+        } else {
+            _lootXPRegistry.addXp(lootId, 10);
+        }
+    }
+
+    function getDeckPower(uint256 lootId, uint8[8] calldata deck) external pure returns (uint8[8] memory deckPower) {
+        for (uint8 i = 0; i < 8; i++) {
+            deckPower[i] = pluckPower(lootId, deck[i]);
+        }
     }
 
     // -----------------------------------------------------------
+
+    function pluckPower(uint256 lootId, uint256 gearType) internal pure returns (uint8 power) {
+        (uint256 index, uint256 greatness) = pluck(lootId, gearType);
+        if (greatness <= 14) {
+            greatness = 3;
+        } else if (greatness == 19) {
+            greatness = 1;
+        } else if (greatness == 20) {
+            greatness = 0;
+        } else {
+            greatness = 2;
+        }
+        if (gearType == 0) {
+            return uint8(125 - index);
+        } else if (gearType < 6) {
+            return uint8(125 - (18 + (gearType - 1) * 15 + index));
+        } else if (gearType == 6) {
+            return uint8(125 - (18 + 5 * 15 + index * 4 + greatness));
+        } else {
+            return uint8(125 - (18 + 5 * 15 + 3 * 4 + index * 4 + greatness));
+        }
+    }
+
+    // solhint-disable-next-line code-complexity
+    function pluck(uint256 tokenId, uint256 gearType) internal pure returns (uint256 index, uint256 greatness) {
+        string memory keyPrefix = "WEAPON";
+        uint256 length = 18;
+        if (gearType == 1) {
+            keyPrefix = "CHEST";
+            length = 15;
+        } else if (gearType == 2) {
+            keyPrefix = "HEAD";
+            length = 15;
+        } else if (gearType == 3) {
+            keyPrefix = "WAIST";
+            length = 15;
+        } else if (gearType == 4) {
+            keyPrefix = "FOOT";
+            length = 15;
+        } else if (gearType == 5) {
+            keyPrefix = "HAND";
+            length = 15;
+        } else if (gearType == 6) {
+            keyPrefix = "NECK";
+            length = 3;
+        } else if (gearType == 7) {
+            keyPrefix = "RING";
+            length = 5;
+        }
+
+        // TODO test if necessary
+        uint256 rand;
+        if (tokenId < 8001) {
+            rand = random(string(abi.encodePacked(keyPrefix, toString(tokenId))));
+        } else {
+            rand = random(string(abi.encodePacked(keyPrefix, abi.encodePacked(address(uint160(tokenId))))));
+        }
+
+        index = rand % length;
+        greatness = rand % 21;
+    }
 
     // TODO test
     // solhint-disable-next-line code-complexity

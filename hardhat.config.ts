@@ -14,7 +14,26 @@ if (process.env.HARDHAT_FORK) {
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.7',
+    compilers: [
+      {
+        version: '0.8.7',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 20000000,
+          },
+        },
+      },
+      {
+        version: '0.8.4',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
   },
   namedAccounts: {
     deployer: 0,

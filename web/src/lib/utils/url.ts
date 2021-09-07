@@ -14,5 +14,8 @@ export function url(path: string): string {
 
 export function urlOfPath(url: string, path: string): boolean {
   const basicUrl = url.split('?')[0].split('#')[0];
-  return basicUrl.replace(base, '').replace(/^\/+|\/+$/g, '') === path.replace(/^\/+|\/+$/g, '');
+  const urltoCompare = basicUrl.replace(base, '').replace(/^\/+|\/+$/g, '');
+  const pathToCompare = path.replace(/^\/+|\/+$/g, '');
+  // console.log({urltoCompare, pathToCompare, url, basicUrl, path});
+  return urltoCompare === pathToCompare;
 }

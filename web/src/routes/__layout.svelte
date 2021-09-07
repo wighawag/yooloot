@@ -39,8 +39,13 @@
 <NavBar
   links={[
     {href: url(''), title: 'Home'},
-    {href: url('battle_1/'), title: 'Battle 1'},
+    {href: url('battle/'), title: 'Battle'},
     // {href: url('search/'), title: 'Search'},
     // {href: url('transmute/'), title: 'Transmute'}
   ]} />
+
+<div class="text-white">
+
+
 <slot />
+</div>

@@ -3,6 +3,7 @@
   import {url, urlOfPath} from '$lib/utils/url';
   import {page} from '$app/stores';
   import { goto } from '$app/navigation';
+import Tab from '$lib/components/battle/Tab.svelte';
 
   let selected = 'battle/commit/'
   async function select(e) {
@@ -29,25 +30,11 @@
   <div class="hidden sm:block">
     <nav class="relative z-0 rounded-lg shadow flex divide-x divide-gray-200" aria-label="Tabs">
       <!-- Current: "text-gray-900", Default: "text-gray-500 hover:text-gray-700" -->
-      <a href={url('battle/')} class="text-gray-50 rounded-l-lg group relative min-w-0 flex-1 overflow-hidden bg-black py-4 px-4 text-sm font-medium text-center hover:bg-gray-500 focus:z-10" aria-current="page">
-        <span>Rules</span>
-        <span aria-hidden="true" class="bg-red-500 absolute inset-x-0 bottom-0 h-0.5"></span>
-      </a>
+      <Tab href={url('battle/')} title="Rules" selected={urlOfPath('battle/', $page.path)}></Tab>
+      <Tab href={url('battle/commit/')} title="Commit" selected={urlOfPath('battle/commit/', $page.path)}></Tab>
+      <Tab href={url('battle/reveal/')} title="Reveal" selected={urlOfPath('battle/reveal/', $page.path)}></Tab>
+      <Tab href={url('battle/withdraw/')} title="Withdraw" selected={urlOfPath('battle/withdraw', $page.path)}></Tab>
 
-      <a href={url('battle/commit/')} class="text-gray-50 hover:text-gray-50 group relative min-w-0 flex-1 overflow-hidden bg-black py-4 px-4 text-sm font-medium text-center hover:bg-gray-500 focus:z-10">
-        <span>Commit</span>
-        <span aria-hidden="true" class="bg-transparent absolute inset-x-0 bottom-0 h-0.5"></span>
-      </a>
-
-      <a href={url('battle/reveal/')} class="text-gray-50 hover:text-gray-50 group relative min-w-0 flex-1 overflow-hidden bg-black py-4 px-4 text-sm font-medium text-center hover:bg-gray-500 focus:z-10">
-        <span>Reveal</span>
-        <span aria-hidden="true" class="bg-transparent absolute inset-x-0 bottom-0 h-0.5"></span>
-      </a>
-
-      <a href={url('battle/withdraw/')} class="text-gray-50 hover:text-gray-50 group relative min-w-0 flex-1 overflow-hidden bg-black py-4 px-4 text-sm font-medium text-center hover:bg-gray-500 focus:z-10">
-        <span>Withdraw</span>
-        <span aria-hidden="true" class="bg-transparent absolute inset-x-0 bottom-0 h-0.5"></span>
-      </a>
     </nav>
   </div>
 </div>

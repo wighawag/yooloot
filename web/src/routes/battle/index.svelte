@@ -2,6 +2,10 @@
 import { url } from "$lib/utils/url";
 
 </script>
-ready to battle ?
 
-<a href={url("battle/commit/")} >Commit</a>
+<p class="m-2">
+  ready to battle ?
+</p>
+
+
+<a class="m-2 underline" href={url("battle/commit/")} >Commit</a>

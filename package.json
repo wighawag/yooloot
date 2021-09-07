@@ -11,6 +11,7 @@
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
     "svelte": "^3.42.4",
+    "ts-node": "^10.2.1",
     "wait-on": "^6.0.0",
     "wighawag_newsh": "0.0.6"
   },
@@ -20,7 +21,6 @@
     "prepare": "node ./.setup.js",
     "setup": "npx change-name yooloot && pnpm install",
     "set-name": "npx change-name yooloot",
-
     "---------------------- common lib ----------------------": "compile the common library",
     "common:dev": "npm --prefix common-lib run dev",
     "common:build": "npm --prefix common-lib run build",

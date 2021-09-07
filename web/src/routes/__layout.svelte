@@ -10,11 +10,20 @@
 
   import {appDescription, url as appUrl} from '../../application.json';
   import Modal from '$lib/components/Modal.svelte';
+  import { flow, wallet } from '$lib/stores/wallet';
 
   const title = 'yooloot';
   const description = appDescription;
   const host = appUrl.endsWith('/') ? appUrl : appUrl + '/';
   const previewImage = host + 'preview.png';
+
+
+  function increaseTime() {
+    flow.execute(async (contracts) => {
+      await wallet.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]);
+      await wallet.provider.send('evm_mine', []);
+    })
+  }
 </script>
 
 <svelte:head>
@@ -43,6 +52,9 @@
     // {href: url('search/'), title: 'Search'},
     // {href: url('transmute/'), title: 'Transmute'}
   ]} />
+
+
+<button class="text-red-600 underline" on:click={increaseTime}>increase time by 1 week</button>
 
 <div class="text-white">
 

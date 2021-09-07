@@ -55,7 +55,7 @@ async function participate(user: User): Promise<FullDeckInfo> {
     [0, 1, 2, 3, 4, 5, 6, 7]
   );
 
-  const deckPower = await user.YooLoot.getDeckPower(tokenId, deck);
+  const deckPower = await user.YooLoot.getDeckPower(tokenId, deck, false);
   console.log({
     // tokenURI,
     tokenId,

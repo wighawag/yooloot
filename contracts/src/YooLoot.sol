@@ -17,6 +17,12 @@ contract YooLoot {
         bool winnerGetLoot;
     }
 
+    struct TokenData {
+        uint256 id;
+        string tokenURI;
+        uint8[8] deckPower;
+    }
+
     Parameters private _paramaters;
 
     mapping(uint256 => address) private _deposits;
@@ -207,6 +213,24 @@ contract YooLoot {
         }
     }
 
+    ///@notice get all info in the minimum calls
+    function getTokenDataOfOwner(
+        address owner,
+        uint256 start,
+        uint256 num
+    ) external view returns (TokenData[] memory tokens) {
+        uint256 balance = _paramaters.loot.balanceOf(owner);
+        require(balance >= start + num, "TOO_MANY_TOKEN_REQUESTED");
+        tokens = new TokenData[](num);
+        uint8[8] memory baseDeck = [0,1,2,3,4,5,6,7];
+        uint256 i = 0;
+        while (i < num) {
+            uint256 id = _paramaters.loot.tokenOfOwnerByIndex(owner, start + i);
+            tokens[i] = TokenData(id, _paramaters.loot.tokenURI(id), getDeckPower(id, baseDeck, address(_paramaters.loot) == _lootForEveryone));
+            i++;
+        }
+    }
+
     function claimVictoryLoot(uint256 lootToPick) external {
         require(_paramaters.winnerGetLoot, "NO_LOOT_TO_WIN");
         require(block.timestamp - _paramaters.startTime < 3 * _paramaters.periodLength, "VICTORY_PERIOD_OVER");
@@ -244,7 +268,7 @@ contract YooLoot {
         }
     }
 
-    function getDeckPower(uint256 lootId, uint8[8] calldata deck, bool lootForEveryone) external pure returns (uint8[8] memory deckPower) {
+    function getDeckPower(uint256 lootId, uint8[8] memory deck, bool lootForEveryone) public pure returns (uint8[8] memory deckPower) {
         for (uint8 i = 0; i < 8; i++) {
             deckPower[i] = pluckPower(lootId, deck[i], lootForEveryone);
         }

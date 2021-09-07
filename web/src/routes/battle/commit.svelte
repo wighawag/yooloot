@@ -3,22 +3,36 @@
   import NavButton from '$lib/components/navigation/NavButton.svelte';
   import {nftsof} from '$lib/stores/originalloot';
   import {wallet, flow, chain} from '$lib/stores/wallet';
+  import commitFlow from '$lib/stores/commitFlow';
+  import Modal from '$lib/components/Modal.svelte';
 
   $: nfts = nftsof($wallet.address);
 
-  function pick(nft: {id: number}) {
-    commitFlow
-    // transmuteFlow.transmute(nft);
-    // let tokenID = nft.id;
-    // flow.execute(async (contracts) => {
-    //   if ($wallet.address) {
-    //     const isApproved = await contracts.Loot.isApprovedForAll($wallet.address, contracts.LootForEveryone.address);
-    //     if (!isApproved) {
-    //       await contracts.Loot.setApprovalForAll(contracts.LootForEveryone.address, true);
-    //     }
-    //     await contracts.LootForEveryone.transmute(tokenID, $wallet.address);
-    //   }
-    // });
+  function pick(nft: {id: string}) {
+    commitFlow.chooseLoot(nft.id);
+  }
+
+  let deckString;
+
+  function chooseDeck() {
+    const deck = deckString.split(',').map(v => parseInt(v));
+    if (deck.length !== 8) {
+      throw new Error(`invalid deck: length:${deck.length}, need to be 8`);
+    }
+    let checks = [0,0,0,0,0,0,0,0];
+    for (let i = 0; i < deck.length; i++) {
+      const elem = deck[i];
+      if (isNaN(elem)) {
+        throw new Error(`invalid deck: not all element are numbers`);
+      }
+      checks[elem] ++;
+    }
+    for (const check of checks) {
+      if (check !== 1) {
+        throw new Error(`invalid deck: all number, 0,1,2,3,4,5,6,7 need to be present one and only one time`);
+      }
+    }
+    commitFlow.chooseDeck(deck);
   }
 </script>
 
@@ -123,3 +137,47 @@
     {/if}
   </section>
 </WalletAccess>
+
+
+{#if $commitFlow.step !== 'IDLE' && $commitFlow.step !== 'SUCCESS'}
+
+  {#if $commitFlow.step === 'CHOOSE_DECK'}
+
+    <Modal on:close={() => commitFlow.cancel()}>
+      {#if !$commitFlow.data}
+        Error
+      {:else}
+        <div class="text-center">
+          <h2>What is your deck order?</h2>
+
+          <input bind:value={deckString} class="bg-black" type="text" />
+          <button
+            class="mt-5 p-1 border border-yellow-500"
+            label="confirm"
+            on:click={chooseDeck}>
+            Confirm
+          </button>
+        </div>
+      {/if}
+    </Modal>
+  {:else if $commitFlow.step !== 'CONFIRM'}
+    <!-- Taken care by WalletAccess -->
+  {:else}
+    <Modal on:close={() => commitFlow.cancel()}>
+      {#if !$commitFlow.data}
+        Error
+      {:else}
+        <div class="text-center">
+          <h2>Loot {$commitFlow.data.lootId}</h2>
+          <p> {$commitFlow.data.deck}</p> <!-- TODO show power of each card-->
+          <button
+            class="mt-5 p-1 border border-yellow-500"
+            label="Pick The Loot"
+            on:click={() => commitFlow.confirm()}>
+            Confirm
+          </button>
+        </div>
+      {/if}
+    </Modal>
+  {/if}
+{/if}

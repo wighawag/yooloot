@@ -1,5 +1,5 @@
 {
-  "name": "loot-for-everyone-common",
+  "name": "yooloot-common",
   "description": "common library used by other modules",
   "private": true,
   "version": "0.0.1",

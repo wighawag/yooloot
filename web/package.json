@@ -1,5 +1,5 @@
 {
-  "name": "loot-for-everyone-web",
+  "name": "yooloot-web",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -40,7 +40,7 @@
     "hash.js": "^1.1.7",
     "ipfs-deploy": "^11.0.1",
     "ipfs-gateway-emulator": "^4.2.1-ipfs.1",
-    "loot-for-everyone-common": "workspace:*",
+    "yooloot-common": "workspace:*",
     "postcss": "^8.3.6",
     "postcss-load-config": "^3.1.0",
     "prepare-for-web": "^0.1.6",
@@ -64,7 +64,7 @@
     "build": "svelte-kit build",
     "start": "svelte-kit start",
     "serve": "ipfs-emulator --only -d build -p 8080",
-    "deploy": "dotenv -- ipfs-deploy -p pinata -s loot-for-everyone build",
+    "deploy": "dotenv -- ipfs-deploy -p pinata -s yooloot build",
     "build:deploy": "run-s build deploy"
   }
 }

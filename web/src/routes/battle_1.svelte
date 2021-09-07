@@ -3,12 +3,12 @@
   import NavButton from '$lib/components/navigation/NavButton.svelte';
   import {nftsof} from '$lib/stores/originalloot';
   import {wallet, flow, chain} from '$lib/stores/wallet';
-import transmuteFlow from '$lib/stores/transmuteFlow';
 
   $: nfts = nftsof($wallet.address);
 
-  function transmute(nft: {id: number}) {
-    transmuteFlow.transmute(nft);
+  function pick(nft: {id: number}) {
+    commitFlow
+    // transmuteFlow.transmute(nft);
     // let tokenID = nft.id;
     // flow.execute(async (contracts) => {
     //   if ($wallet.address) {
@@ -51,7 +51,7 @@ import transmuteFlow from '$lib/stores/transmuteFlow';
       <div
         class="w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
         <p class="p-6">
-            Here are your Loot to transmute
+            Here are your Loot to battle with, pick one
         </p>
       </div>
     {:else if $chain.notSupported}
@@ -98,7 +98,7 @@ import transmuteFlow from '$lib/stores/transmuteFlow';
             <div
               id={nft.id}
               class="space-y-4 py-8 cursor-pointer"
-              on:click={() => transmute(nft)}
+              on:click={() => pick(nft)}
               >
               <div class="aspect-w-3 aspect-h-2">
                 {#if nft.error}

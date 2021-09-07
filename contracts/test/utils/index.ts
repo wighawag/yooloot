@@ -30,3 +30,25 @@ export async function waitFor<T>(
   const tx = await p;
   return tx.wait();
 }
+
+export async function increaseTime(
+  numSeconds: number,
+  mineBlock?: boolean
+): Promise<void> {
+  // await ethers.provider.send('evm_increaseTime', [numSeconds]);
+  const latestBlockTimestamp = await getLatestBlockTimestamp();
+  await setNextBlockTimestamp(latestBlockTimestamp + numSeconds);
+  if (mineBlock) {
+    await ethers.provider.send('evm_mine', []);
+  }
+}
+
+export async function setNextBlockTimestamp(
+  newTimestamp: number
+): Promise<void> {
+  await ethers.provider.send('evm_setNextBlockTimestamp', [newTimestamp]);
+}
+
+export async function getLatestBlockTimestamp(): Promise<number> {
+  return (await ethers.provider.getBlock('latest')).timestamp;
+}

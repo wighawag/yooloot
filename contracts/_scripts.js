@@ -3,7 +3,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const {spawn} = require('child_process');
-const path = require('path');
 require('dotenv').config();
 
 const commandlineArgs = process.argv.slice(2);
@@ -69,18 +68,10 @@ async function performAction(rawArgs) {
   const args = rawArgs.slice(1);
   if (firstArg === 'run') {
     const {fixedArgs, extra} = parseArgs(args, 2, {});
-    let filepath = fixedArgs[1];
-    const folder = path.basename(__dirname);
-    if (
-      filepath.startsWith(folder + '/') ||
-      filepath.startsWith(folder + '\\')
-    ) {
-      filepath = filepath.slice(folder.length + 1);
-    }
     await execute(
       `cross-env HARDHAT_DEPLOY_LOG=true HARDHAT_NETWORK=${
         fixedArgs[0]
-      } ts-node --files ${filepath} ${extra.join(' ')}`
+      } ts-node --files ${fixedArgs[1]} ${extra.join(' ')}`
     );
   } else if (firstArg === 'deploy') {
     const {fixedArgs, extra} = parseArgs(args, 1, {});
@@ -98,26 +89,16 @@ async function performAction(rawArgs) {
       blockNumber: 'string',
       'no-impersonation': 'boolean',
     });
-    let filepath = fixedArgs[1];
-    const folder = path.basename(__dirname);
-    if (
-      filepath.startsWith(folder + '/') ||
-      filepath.startsWith(folder + '\\')
-    ) {
-      filepath = filepath.slice(folder.length + 1);
-    }
     await execute(
       `cross-env ${
         options.deploy ? 'HARDHAT_DEPLOY_FIXTURE=true' : ''
-      } HARDHAT_DEPLOY_LOG=true HARDHAT_DEPLOY_ACCOUNTS_NETWORK=${
-        fixedArgs[0]
-      } HARDHAT_FORK=${fixedArgs[0]} ${
+      } HARDHAT_DEPLOY_LOG=true HARDHAT_FORK=${fixedArgs[0]} ${
         options.blockNumber ? `HARDHAT_FORK_NUMBER=${options.blockNumber}` : ''
       } ${
         options['no-impersonation']
           ? `HARDHAT_DEPLOY_NO_IMPERSONATION=true`
           : ''
-      } ts-node --files ${filepath} ${extra.join(' ')}`
+      } ts-node --files ${fixedArgs[1]} ${extra.join(' ')}`
     );
   } else if (firstArg === 'fork:deploy') {
     const {fixedArgs, options, extra} = parseArgs(args, 1, {
@@ -125,9 +106,7 @@ async function performAction(rawArgs) {
       'no-impersonation': 'boolean',
     });
     await execute(
-      `cross-env HARDHAT_DEPLOY_ACCOUNTS_NETWORK=${fixedArgs[0]} HARDHAT_FORK=${
-        fixedArgs[0]
-      } ${
+      `cross-env HARDHAT_FORK=${fixedArgs[0]} ${
         options.blockNumber ? `HARDHAT_FORK_NUMBER=${options.blockNumber}` : ''
       } ${
         options['no-impersonation']
@@ -135,15 +114,27 @@ async function performAction(rawArgs) {
           : ''
       } hardhat deploy ${extra.join(' ')}`
     );
+  } else if (firstArg === 'fork:node') {
+    const {fixedArgs, options, extra} = parseArgs(args, 1, {
+      blockNumber: 'string',
+      'no-impersonation': 'boolean',
+    });
+    await execute(
+      `cross-env HARDHAT_FORK=${fixedArgs[0]} ${
+        options.blockNumber ? `HARDHAT_FORK_NUMBER=${options.blockNumber}` : ''
+      } ${
+        options['no-impersonation']
+          ? `HARDHAT_DEPLOY_NO_IMPERSONATION=true`
+          : ''
+      } hardhat node ${extra.join(' ')}`
+    );
   } else if (firstArg === 'fork:test') {
     const {fixedArgs, options, extra} = parseArgs(args, 1, {
       blockNumber: 'string',
       'no-impersonation': 'boolean',
     });
     await execute(
-      `cross-env HARDHAT_DEPLOY_ACCOUNTS_NETWORK=${fixedArgs[0]} HARDHAT_FORK=${
-        fixedArgs[0]
-      } ${
+      `cross-env HARDHAT_FORK=${fixedArgs[0]} ${
         options.blockNumber ? `HARDHAT_FORK_NUMBER=${options.blockNumber}` : ''
       } ${
         options['no-impersonation']
@@ -155,12 +146,11 @@ async function performAction(rawArgs) {
     );
   } else if (firstArg === 'fork:dev') {
     const {fixedArgs, options, extra} = parseArgs(args, 1, {
+      blockNumber: 'string',
       'no-impersonation': 'boolean',
     });
     await execute(
-      `cross-env HARDHAT_DEPLOY_ACCOUNTS_NETWORK=${fixedArgs[0]} HARDHAT_FORK=${
-        fixedArgs[0]
-      } ${
+      `cross-env HARDHAT_FORK=${fixedArgs[0]} ${
         options.blockNumber ? `HARDHAT_FORK_NUMBER=${options.blockNumber}` : ''
       } ${
         options['no-impersonation']

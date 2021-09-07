@@ -48,9 +48,10 @@ function fixURI(uri?: string): string {
   return uri;
 }
 
-type NFT = {
+export type NFT = {
   id: string;
   tokenURI: string;
+  deckPower: [number, number, number, number, number, number, number, number];
   name: string;
   description: string;
   image: string;
@@ -85,21 +86,17 @@ class NFTOfStore extends BaseStore<NFTs> {
     const contracts = chain.contracts || fallback.contracts;
     if (contracts) {
       const numTokens = await contracts.Loot.balanceOf(address);
-      console.log({numTokens});
-      const tokens = [];
-      for(let i = 0; i < numTokens.toNumber(); i++) {
-        const tokenId = await contracts.Loot.tokenOfOwnerByIndex(address, i);
-        const tokenURI = await contracts.Loot.tokenURI(tokenId);
-        tokens.push({tokenURI, id: tokenId});
-      }
-      const result: {tokenURI: string; id: string}[] = [];
+      const tokens = await contracts.YooLoot.getTokenDataOfOwner(
+        address,
+        0,
+        numTokens
+      );
+      const result: {tokenURI: string; id: string, deckPower: [number, number, number, number, number, number, number, number]}[] = [];
       for (const token of tokens) {
         result.push({
-          tokenURI: token.tokenURI.replace(
-            'image-rendering: pixelated;',
-            'image-rendering: pixelated; image-rendering: crisp-edges;'
-          ),
+          tokenURI: token.tokenURI,
           id: token.id,
+          deckPower: token.deckPower
         });
       }
 
@@ -132,7 +129,7 @@ class NFTOfStore extends BaseStore<NFTs> {
     }
   }
 
-  async _transform(tokens: {tokenURI: string; id: string}[]): Promise<NFT[]> {
+  async _transform(tokens: {tokenURI: string; id: string, deckPower: [number,number,number,number,number,number,number,number]}[]): Promise<NFT[]> {
     // TODO cache
     const newResult: NFT[] = [];
     for (const token of tokens) {
@@ -147,10 +144,12 @@ class NFTOfStore extends BaseStore<NFTs> {
             name: json.name,
             description: json.description,
             image: fixURI(json.image || json.image_url),
+            deckPower: token.deckPower
           });
         } catch (e) {
           newResult.push({
             id: token.id,
+            deckPower: token.deckPower,
             tokenURI,
             name: '',
             description: '',
@@ -161,6 +160,7 @@ class NFTOfStore extends BaseStore<NFTs> {
       } else {
         newResult.push({
           id: token.id,
+          deckPower: token.deckPower,
           tokenURI: '',
           name: '',
           description: '',

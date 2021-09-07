@@ -1,6 +1,7 @@
 <script lang="ts">
   import WalletAccess from '$lib/WalletAccess.svelte';
   import NavButton from '$lib/components/navigation/NavButton.svelte';
+  import type {NFT} from '$lib/stores/originalloot';
   import {nftsof} from '$lib/stores/originalloot';
   import {wallet, flow, chain} from '$lib/stores/wallet';
   import commitFlow from '$lib/stores/commitFlow';
@@ -8,8 +9,8 @@
 
   $: nfts = nftsof($wallet.address);
 
-  function pick(nft: {id: string}) {
-    commitFlow.chooseLoot(nft.id);
+  function pick(nft: NFT) {
+    commitFlow.chooseLoot(nft);
   }
 
   let deckString;
@@ -126,6 +127,7 @@
                     height="400px"
                     alt={nft.name}
                     src={nft.image} />
+                    {nft.deckPower}
                 {:else}
                   <p class="">{nft.name}</p>
                 {/if}
@@ -150,6 +152,9 @@
         <div class="text-center">
           <h2>What is your deck order?</h2>
 
+          <p> this is your card power:</p>
+          <p>{$commitFlow.data.loot.deckPower.map((v,i) => `${i}:${v}`).join(" / ")}</p>
+
           <input bind:value={deckString} class="bg-black" type="text" />
           <button
             class="mt-5 p-1 border border-yellow-500"
@@ -168,8 +173,8 @@
         Error
       {:else}
         <div class="text-center">
-          <h2>Loot {$commitFlow.data.lootId}</h2>
-          <p> {$commitFlow.data.deck}</p> <!-- TODO show power of each card-->
+          <h2>Loot {$commitFlow.data.loot.id}</h2>
+          <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i])}</p> <!-- TODO show power of each card-->
           <button
             class="mt-5 p-1 border border-yellow-500"
             label="Pick The Loot"

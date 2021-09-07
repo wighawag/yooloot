@@ -1,9 +1,10 @@
 import {wallet, flow} from './wallet';
 import {BaseStoreWithData} from '$lib/utils/stores';
 import {keccak256} from '@ethersproject/solidity';
+import type { NFT } from './originalloot';
 
 type Data = {
-  lootId: string;
+  loot: NFT;
   deck?: [number, number, number, number, number, number, number, number]
 };
 export type CommitFlow = {
@@ -34,11 +35,11 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
     this._reset();
   }
 
-  async chooseLoot(lootId: string): Promise<void> {
+  async chooseLoot(loot: NFT): Promise<void> {
     this.setPartial({step: 'CONNECTING'});
     flow.execute(async (contracts) => {
       this.setPartial({
-        data: {lootId},
+        data: {loot},
         step: 'CHOOSE_DECK',
       });
     });
@@ -62,7 +63,7 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
         throw new Error(`no flow data`);
       }
 
-      const tokenID = currentFlow.data.lootId;
+      const tokenID = currentFlow.data.loot.id;
 
       const isApproved = await contracts.Loot.isApprovedForAll(wallet.address, contracts.YooLoot.address);
       if (!isApproved) {

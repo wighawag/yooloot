@@ -1,15 +1,11 @@
 <script lang="ts">
   import WalletAccess from '$lib/WalletAccess.svelte';
-  import NavButton from '$lib/components/navigation/NavButton.svelte';
-  import {nftsof} from '$lib/stores/originalloot';
-  import {wallet, flow, chain} from '$lib/stores/wallet';
   import revealFlow from '$lib/stores/revealFlow';
-  import Modal from '$lib/components/Modal.svelte';
 
 
   let deckString: string;
   let lootId: string;
-  let nonce: string;
+  let nonceString: string;
 
   function reveal() {
     const deck = deckString.split(',').map(v => parseInt(v));
@@ -29,9 +25,13 @@
         throw new Error(`invalid deck: all number, 0,1,2,3,4,5,6,7 need to be present one and only one time`);
       }
     }
+    const nonce = parseInt(nonceString);
 
-    const secret = "0x1111111111111111111111111111111111111111111111111111111111111111";
-    revealFlow.revealLootDeck(lootId, deck as [number, number, number, number, number, number,number, number], secret);
+    if (isNaN(nonce)) {
+      throw new Error('invalid nonce');
+    }
+
+    revealFlow.revealLootDeck(lootId, deck as [number, number, number, number, number, number,number, number], nonce);
   }
 </script>
 
@@ -41,8 +41,8 @@
 
     <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
     <label for="deck">deck</label><input id="deck" type="text" class="bg-black" bind:value={deckString}/>
-    <label for="nonce">nonce</label><input id="lootId" type="text" class="bg-black" bind:value={nonce}/>
+    <label for="nonce">nonce</label><input id="lootId" type="text" class="bg-black" bind:value={nonceString}/>
 
-    <button on:click={reveal}>REVEAL</button>
+    <button class="my-4 p-1 border-2 border-red-600" on:click={reveal}>REVEAL</button>
   </section>
 </WalletAccess>

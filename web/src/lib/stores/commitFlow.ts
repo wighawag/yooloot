@@ -1,20 +1,26 @@
-import {wallet, flow} from './wallet';
+import {wallet, flow, chain} from './wallet';
 import {BaseStoreWithData} from '$lib/utils/stores';
 import {keccak256} from '@ethersproject/solidity';
-import type { NFT } from './originalloot';
+import type { Deck, NFT } from './originalloot';
+import { commits } from './commits';
 
 type Data = {
   loot: NFT;
-  deck?: [number, number, number, number, number, number, number, number]
+  deck?: Deck;
+  nonce?: number;
 };
 export type CommitFlow = {
   step:
     | 'IDLE'
     | 'CONNECTING'
     | 'CHOOSE_DECK'
-    | 'CONFIRM'
+    | 'NEED_CONFIRMATION'
+    | 'FETCHING_DATA'
+    | 'APPROVAL_TX'
+    | 'WAITING_FOR_SIGNATURE'
     | 'CREATING_TX'
     | 'WAITING_TX'
+    | 'WAITING_FOR_ACKNOWLEDGMENT'
     | 'SUCCESS';
   data?: Data;
 };
@@ -45,42 +51,64 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
     });
   }
 
-  async chooseDeck(deck: [number, number, number, number, number, number, number, number]): Promise<void> {
+  async chooseDeck(deck: Deck): Promise<void> {
     this.setPartial({step: 'CONNECTING'});
     this.setPartial({
       data: {...this.$store.data, deck},
-      step: 'CONFIRM',
+      step: 'NEED_CONFIRMATION',
     });
   }
 
   async confirm(): Promise<void> {
-    const currentFlow = this.setPartial({step: 'WAITING_TX'});
+    const currentFlow = this.setPartial({step: 'CONNECTING'});
+
+
     if (!currentFlow.data) {
       throw new Error(`no flow data`);
     }
     flow.execute(async (contracts) => {
+      const currentFlow = this.setPartial({step: 'FETCHING_DATA'});
       if (!currentFlow.data) {
         throw new Error(`no flow data`);
       }
-
       const tokenID = currentFlow.data.loot.id;
 
       const isApproved = await contracts.Loot.isApprovedForAll(wallet.address, contracts.YooLoot.address);
+      let currentNonce = await wallet.provider.getTransactionCount(wallet.address);
+
       if (!isApproved) {
-        await contracts.Loot.setApprovalForAll(contracts.YooLoot.address, true);
+        this.setPartial({step: 'APPROVAL_TX'});
+        await contracts.Loot.setApprovalForAll(contracts.YooLoot.address, true, {nonce: currentNonce});
+        currentNonce ++;
       }
 
-      // TODO
-      const secret = "0x1111111111111111111111111111111111111111111111111111111111111111";
+      this.setPartial({step: 'WAITING_FOR_SIGNATURE'});
+      const signature = await wallet.provider
+      .getSigner()
+      .signMessage(`Generate Yoolot Secret number : ${currentNonce}`);
+      const secret = signature.slice(0, 66);
+
       const deckHash = keccak256(
         ['bytes32', 'uint256', 'uint8[8]'],
         [secret, tokenID, currentFlow.data.deck]
       );
 
-      await contracts.YooLoot.commitLootDeck(tokenID, deckHash);
+      this.setPartial({step: 'WAITING_TX'});
+      await contracts.YooLoot.commitLootDeck(tokenID, deckHash, {nonce: currentNonce});
 
-      this.setPartial({step: 'SUCCESS'});
+      this.setData({nonce: currentNonce});
+
+      commits(wallet.address, wallet.chain.chainId, contracts.YooLoot.address).update((data) => {
+        data.commits.push({deck: currentFlow.data.deck, nonce: currentNonce, lootId: tokenID})
+        return data;
+      });
+
+      this.setPartial({step: 'WAITING_FOR_ACKNOWLEDGMENT'});
     });
+  }
+
+  async acknowledgeSuccess(): Promise<void> {
+    this.setPartial({step: 'SUCCESS'});
   }
 
   private _reset() {

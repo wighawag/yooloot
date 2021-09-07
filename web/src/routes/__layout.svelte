@@ -18,12 +18,12 @@
   const previewImage = host + 'preview.png';
 
 
-  function increaseTime() {
-    flow.execute(async (contracts) => {
-      await wallet.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]);
-      await wallet.provider.send('evm_mine', []);
-    })
-  }
+  // function increaseTime() {
+  //   flow.execute(async (contracts) => {
+  //     await wallet.provider.send('evm_increaseTime', [7 * 24 * 60 * 60]);
+  //     await wallet.provider.send('evm_mine', []);
+  //   })
+  // }
 </script>
 
 <svelte:head>
@@ -54,7 +54,7 @@
   ]} />
 
 
-<button class="text-red-600 underline" on:click={increaseTime}>increase time by 1 week</button>
+<!-- <button class="text-red-600 underline" on:click={increaseTime}>increase time by 1 week</button> -->
 
 <div class="text-white">
 

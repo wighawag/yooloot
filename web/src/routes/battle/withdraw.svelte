@@ -16,6 +16,6 @@
 
     <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
 
-    <button on:click={withdraw}>WITHDRAW</button>
+    <button class="my-4 p-1 border-2 border-red-600" on:click={withdraw}>WITHDRAW</button>
   </section>
 </WalletAccess>

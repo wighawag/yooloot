@@ -182,6 +182,10 @@ contract YooLoot {
         winnerAddress = _deposits[winnerLootId];
     }
 
+    function getParams() external view returns (Parameters memory) {
+        return _paramaters;
+    }
+
     // solhint-disable-next-line code-complexity
     function individualScore(uint256 lootId) public view returns (uint256 score) {
         require(

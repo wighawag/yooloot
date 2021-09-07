@@ -16,18 +16,17 @@ import {
 import {solidityKeccak256} from 'ethers/lib/utils';
 import {Wallet} from '@ethersproject/wallet';
 
+type Deck = [number, number, number, number, number, number, number, number];
+
 type DeckInfo = {
-  deck: [number, number, number, number, number, number, number, number];
+  deck: Deck;
   deckHash: string;
   secret: string;
 };
 
 type FullDeckInfo = DeckInfo & {tokenId: string; user: User};
 
-function createDeck(
-  tokenId: string,
-  deck: [number, number, number, number, number, number, number, number]
-): DeckInfo {
+function createDeck(tokenId: string, deck: Deck): DeckInfo {
   const secret = Wallet.createRandom().privateKey;
   const deckHash = solidityKeccak256(
     ['bytes32', 'uint256', 'uint8[8]'],

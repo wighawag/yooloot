@@ -20,6 +20,7 @@
     "@urql/devtools": "^2.0.3",
     "graphql": "^15.5.2",
     "named-logs": "^0.1.0",
+    "svelte-local-storage-store": "^0.2.4",
     "web3w": "^0.3.1",
     "web3w-torus-loader": "^0.3.1",
     "web3w-walletconnect-loader": "^0.3.1",

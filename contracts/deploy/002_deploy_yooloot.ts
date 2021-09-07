@@ -29,6 +29,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       true,
       7 * 24 * 60 * 60,
     ],
+    proxy:
+      hre.network.name !== 'mainnet'
+        ? {
+            execute: {
+              init: {
+                methodName: 'freeFormInit',
+                args: [Loot.address, true, 7 * 24 * 60 * 60],
+              },
+            },
+          }
+        : undefined,
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });

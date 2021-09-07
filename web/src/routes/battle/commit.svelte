@@ -6,10 +6,15 @@
   import {wallet, flow, chain} from '$lib/stores/wallet';
   import commitFlow from '$lib/stores/commitFlow';
   import Modal from '$lib/components/Modal.svelte';
+import gamestate from '$lib/stores/gamestate';
+import { url } from '$lib/utils/url';
 
   $: nfts = nftsof($wallet.address);
 
   function pick(nft: NFT) {
+    if (commitOver) {
+      return;
+    }
     commitFlow.chooseLoot(nft);
   }
 
@@ -35,6 +40,8 @@
     }
     commitFlow.chooseDeck(deck);
   }
+
+  $: commitOver = $gamestate.phase !== "IDLE"  && $gamestate.phase !== "LOADING" && $gamestate.phase !== "COMMIT"
 </script>
 
 <WalletAccess>
@@ -84,8 +91,16 @@
       </div>
     {/if}
   {/if}
+
+
   <section
     class="py-8 md:w-3/4 w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
+
+    {#if commitOver}
+      Commit Phase is over, time to <a href={url('battle/reveal/')} class="border-red-600 border-2 p-2 m-2">REVEAL!</a>
+
+    {/if}
+
     {#if $wallet.state !== 'Ready'}
       <!-- <form class="mt-5 w-full max-w-sm">
         <div class="flex items-center">
@@ -165,9 +180,23 @@
         </div>
       {/if}
     </Modal>
-  {:else if $commitFlow.step !== 'CONFIRM'}
-    <!-- Taken care by WalletAccess -->
-  {:else}
+  {:else if $commitFlow.step === 'WAITING_FOR_ACKNOWLEDGMENT'}
+  <Modal on:close={() => commitFlow.cancel()}>
+    <div class="text-center">
+      <h2>Loot {$commitFlow.data.loot.id} submited with nonce {$commitFlow.data.nonce} and the following deck :</h2>
+      <p> {$commitFlow.data.deck}</p> <!-- TODO show power of each card-->
+      <p>In term of power, this is the following :</p>
+      <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i])}</p> <!-- TODO show power of each card-->
+      <button
+        class="mt-5 p-1 border border-yellow-500"
+        label="Pick The Loot"
+        on:click={() => commitFlow.acknowledgeSuccess()}>
+        OK
+      </button>
+    </div>
+
+  </Modal>
+  {:else if $commitFlow.step === 'NEED_CONFIRMATION'}
     <Modal on:close={() => commitFlow.cancel()}>
       {#if !$commitFlow.data}
         Error
@@ -184,5 +213,14 @@
         </div>
       {/if}
     </Modal>
+  {:else if $commitFlow.step === 'WAITING_FOR_SIGNATURE'}
+    <Modal>
+      <div class="text-center">
+        <h2>Please accept signature to generate your secret</h2>
+        <p>This will allow you to recover from loss if needed</p>
+      </div>
+    </Modal>
+  {:else}
+  <!-- -->
   {/if}
 {/if}

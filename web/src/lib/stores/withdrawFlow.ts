@@ -1,9 +1,10 @@
 import {wallet, flow} from './wallet';
 import {BaseStoreWithData} from '$lib/utils/stores';
+import type { Deck } from './originalloot';
 
 type Data = {
   lootId: string;
-  deck?: [number, number, number, number, number, number, number, number]
+  deck?: Deck
 };
 export type WithdrawFlow = {
   step:

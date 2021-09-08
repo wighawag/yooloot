@@ -2,6 +2,7 @@ import {wallet, flow, chain} from './wallet';
 import {BaseStore} from '$lib/utils/stores';
 import type { ChainStore, WalletStore } from 'web3w';
 import { now } from './time';
+import { YooLootContract } from '$lib/config';
 
 const week = 7 * 24 * 60 * 60;
 
@@ -50,7 +51,7 @@ class GameStateStore extends BaseStore<GameState> {
   async update() {
     if (!this.$store.startTime && wallet.provider) {
 
-      const params = await wallet.contracts.YooLoot.getParams();
+      const params = await wallet.contracts[YooLootContract].getParams();
       const {startTime} = params;
       this.setPartial({startTime});
     }
@@ -60,13 +61,13 @@ class GameStateStore extends BaseStore<GameState> {
     if (timePassed > 3 * week) {
       this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'})
       if (!this.$store.winner) {
-        const winnerInfo = await wallet.contracts.YooLoot.winner();
+        const winnerInfo = await wallet.contracts[YooLootContract].winner();
         this.setPartial({winner: winnerInfo.winnerAddress});
       }
     } else if (timePassed > 2 * week) {
       this.setPartial({timeLeftBeforeNextPhase: 3 * week - timePassed, phase: 'WINNER'});
       if (!this.$store.winner) {
-        const winnerInfo = await wallet.contracts.YooLoot.winner();
+        const winnerInfo = await wallet.contracts[YooLootContract].winner();
         this.setPartial({winner: winnerInfo.winnerAddress});
       }
     } else if (timePassed > 1 * week) {

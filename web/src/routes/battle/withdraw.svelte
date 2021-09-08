@@ -4,6 +4,7 @@
   import gamestate from '$lib/stores/gamestate';
 import { url } from '$lib/utils/url';
 import { flow, wallet } from '$lib/stores/wallet';
+import { YooLootContract } from '$lib/config';
 
 
   let winnerLootId: string;
@@ -15,7 +16,7 @@ import { flow, wallet } from '$lib/stores/wallet';
 
   function claimVictoryLoot() {
     flow.execute(async (contracts) => {
-      await contracts.YooLoot.claimVictoryLoot(winnerLootId);
+      await contracts[YooLootContract].claimVictoryLoot(winnerLootId);
     });
   }
 
@@ -43,7 +44,7 @@ import { flow, wallet } from '$lib/stores/wallet';
       <label for="winnerLootId">LootId</label><input id="winnerLootId" type="text" class="bg-black" bind:value={winnerLootId}/>
 
       <button class="my-4 p-1 border-2 border-red-600" on:click={claimVictoryLoot}>LOOT!</button>
-    {:else }
+    {:else if !withdrawNotReady }
       Waiting for winner to pick its winning loot
     {/if}
   {:else}

@@ -1,6 +1,7 @@
 import {chain, fallback, transactions} from './wallet';
 import {BaseStore} from '$lib/utils/stores';
 import type {BigNumber} from '@ethersproject/bignumber';
+import { LootContract, YooLootContract } from '$lib/config';
 
 // TODO export in web3w
 type ParsedEvent = {
@@ -88,8 +89,8 @@ class NFTOfStore extends BaseStore<NFTs> {
   ): Promise<null | {tokenURI: string; id: string, deckPower: Deck}[]> {
     const contracts = chain.contracts || fallback.contracts;
     if (contracts) {
-      const numTokens = await contracts.Loot.balanceOf(address);
-      const tokens: {tokenURI: string; id: BigNumber; deckPower: Deck}[] = await contracts.YooLoot.getTokenDataOfOwner(
+      const numTokens = await contracts[LootContract].balanceOf(address);
+      const tokens: {tokenURI: string; id: BigNumber; deckPower: Deck}[] = await contracts[YooLootContract].getTokenDataOfOwner(
         address,
         0,
         numTokens

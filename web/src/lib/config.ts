@@ -50,5 +50,9 @@ if (!nodeUrl) {
 
 const graphNodeURL = import.meta.env.VITE_THE_GRAPH_HTTP as string;
 
+const LootContract = import.meta.env.VITE_LOOT_CONTRACT_NAME as string;
+
+const YooLootContract = import.meta.env.VITE_YOOLOOT_CONTRACT_NAME as string;
+
 const globalQueryParams = ['debug', 'log', 'subgraph', 'ethnode', '_d_eruda'];
-export {finality, nodeUrl, chainId, blockTime, chainName, graphNodeURL, globalQueryParams};
+export {finality, nodeUrl, chainId, blockTime, chainName, graphNodeURL, globalQueryParams, LootContract, YooLootContract};

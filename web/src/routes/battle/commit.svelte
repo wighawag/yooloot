@@ -9,6 +9,7 @@
 import gamestate from '$lib/stores/gamestate';
 import { url } from '$lib/utils/url';
 import gameState from '$lib/stores/gamestate';
+import { LootContract } from '$lib/config';
 
   $: nfts = nftsof($wallet.address);
 
@@ -102,7 +103,7 @@ import gameState from '$lib/stores/gamestate';
     {:else if $wallet.state === 'Ready'}
       <div
         class="w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
-          <p class="p-4">You do not have any of the original Loot</p>
+          <p class="p-4">You do not have any of {LootContract === 'Loot' ? 'original' : LootContract} Loot</p>
       </div>
     {/if}
   {/if}

@@ -10,6 +10,8 @@ contract YooLoot {
     event LootDeckSubmitted(address indexed player, uint256 indexed lootId, bytes32 deckHash);
     event LootDeckRevealed(uint256 indexed lootId, uint8[8] deck);
 
+    event Cloned(address loot, bool winnerGetLoot, uint24 periodLength, address newYooLoot, bool authorizedAsXPSource);
+
     struct Parameters {
         ILoot loot;
         uint40 startTime;
@@ -86,10 +88,7 @@ contract YooLoot {
         bool winnerGetLoot,
         uint24 periodLength
     ) external returns (address) {
-        address yooloot = Clones.clone(address(this));
-        YooLoot(yooloot).init(loot, winnerGetLoot, periodLength);
-        _lootXPRegistry.setSource(yooloot, true);
-        return yooloot;
+        return _clone(loot, winnerGetLoot, periodLength, true);
     }
 
     function freeFormClone(
@@ -97,8 +96,31 @@ contract YooLoot {
         bool winnerGetLoot,
         uint24 periodLength
     ) external returns (address) {
-        address yooloot = Clones.clone(address(this));
-        YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, periodLength);
+        return _clone(loot, winnerGetLoot, periodLength, false);
+    }
+
+    function _clone(
+        ILoot loot,
+        bool winnerGetLoot,
+        uint24 periodLength,
+        bool generateXP
+    ) internal returns(address) {
+        address implementation;
+        // solhint-disable-next-line security/no-inline-assembly
+        assembly {
+            implementation := sload(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc)
+        }
+        if (implementation == address(0)) {
+            implementation = address(this);
+        }
+        address yooloot = Clones.clone(implementation);
+        if (generateXP) {
+            YooLoot(yooloot).init(loot, winnerGetLoot, periodLength);
+            _lootXPRegistry.setSource(yooloot, true);
+        } else {
+            YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, periodLength);
+        }
+        emit Cloned(address(loot), winnerGetLoot, periodLength, yooloot, generateXP);
         return yooloot;
     }
 

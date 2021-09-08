@@ -2,6 +2,7 @@ import {wallet, flow} from './wallet';
 import {BaseStoreWithData} from '$lib/utils/stores';
 import {keccak256} from '@ethersproject/solidity';
 import type { Deck } from './originalloot';
+import { YooLootContract } from '$lib/config';
 
 type Data = {
   lootId: string;
@@ -45,7 +46,7 @@ class PurchaseFlowStore extends BaseStoreWithData<RevealFlow, Data> {
     this.setData({lootId, deck, nonce})
     flow.execute(async (contracts) => {
       this.setPartial({step: 'GETTING_DATA'});
-      const deckHash = await contracts.YooLoot.getDeckHash(lootId);
+      const deckHash = await contracts[YooLootContract].getDeckHash(lootId);
       if (deckHash === '0x0000000000000000000000000000000000000000000000000000000000000001') {
         this.setPartial({step: 'ALREADY_RESOLVED'});
         return;
@@ -60,7 +61,7 @@ class PurchaseFlowStore extends BaseStoreWithData<RevealFlow, Data> {
       const secret = signature.slice(0, 66);
 
       this.setPartial({step: 'WAITING_TX'});
-      await contracts.YooLoot.revealLootDeck(lootId, deck, secret);
+      await contracts[YooLootContract].revealLootDeck(lootId, deck, secret);
       this.setPartial({step: 'WAITING_FOR_ACKNOWLEDGMENT'});
     });
   }

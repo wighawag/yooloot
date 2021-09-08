@@ -5,11 +5,11 @@ const {AddressZero} = constants;
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployer} = await hre.getNamedAccounts();
-  const {deploy, execute, read} = hre.deployments;
+  const {deploy, execute, read, log} = hre.deployments;
 
   const Loot = await hre.deployments.get('Loot');
 
-  const MLoot = await hre.deployments.getOrNull('MLoot');
+  const MLoot = await hre.deployments.get('MLoot');
   const LootForEveryone = await hre.deployments.getOrNull('LootForEveryone');
 
   const LootXPRegistry = await hre.deployments.get('LootXPRegistry');
@@ -24,7 +24,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [
       LootXPRegistry.address,
-      [Loot.address, MLoot || AddressZero, LootForEveryone || AddressZero],
+      [
+        Loot.address,
+        MLoot?.address || AddressZero,
+        LootForEveryone?.address || AddressZero,
+      ],
       Loot.address,
       true,
       7 * 24 * 60 * 60,
@@ -46,13 +50,31 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const isSource = await read('LootXPRegistry', 'xpSource', YooLoot.address);
   if (!isSource) {
-    await execute(
+    const receipt = await execute(
       'LootXPRegistry',
-      {from: deployer},
+      {from: deployer, log: true},
       'setSource',
       YooLoot.address,
       true
     );
+    log({gasUsed: receipt.gasUsed.toString()});
+  }
+
+  // TODO decide
+  const isGenerator = await read(
+    'LootXPRegistry',
+    'xpSourceAndSyncGenerator',
+    YooLoot.address
+  );
+  if (!isGenerator) {
+    const receipt = await execute(
+      'LootXPRegistry',
+      {from: deployer, log: true},
+      'setGenerator',
+      YooLoot.address,
+      true
+    );
+    log({gasUsed: receipt.gasUsed.toString()});
   }
 };
 export default func;

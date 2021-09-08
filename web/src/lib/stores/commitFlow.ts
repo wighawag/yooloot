@@ -3,6 +3,7 @@ import {BaseStoreWithData} from '$lib/utils/stores';
 import {keccak256} from '@ethersproject/solidity';
 import type { Deck, NFT } from './originalloot';
 import { commits } from './commits';
+import { LootContract, YooLootContract } from '$lib/config';
 
 type Data = {
   loot: NFT;
@@ -73,12 +74,12 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
       }
       const tokenID = currentFlow.data.loot.id;
 
-      const isApproved = await contracts.Loot.isApprovedForAll(wallet.address, contracts.YooLoot.address);
+      const isApproved = await contracts.Loot.isApprovedForAll(wallet.address, contracts[YooLootContract].address);
       let currentNonce = await wallet.provider.getTransactionCount(wallet.address);
 
       if (!isApproved) {
         this.setPartial({step: 'APPROVAL_TX'});
-        await contracts.Loot.setApprovalForAll(contracts.YooLoot.address, true, {nonce: currentNonce});
+        await contracts[LootContract].setApprovalForAll(contracts[YooLootContract].address, true, {nonce: currentNonce});
         currentNonce ++;
       }
 
@@ -94,11 +95,11 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
       );
 
       this.setPartial({step: 'WAITING_TX'});
-      await contracts.YooLoot.commitLootDeck(tokenID, deckHash, {nonce: currentNonce});
+      await contracts[YooLootContract].commitLootDeck(tokenID, deckHash, {nonce: currentNonce});
 
       this.setData({nonce: currentNonce});
 
-      commits(wallet.address, wallet.chain.chainId, contracts.YooLoot.address).update((data) => {
+      commits(wallet.address, wallet.chain.chainId, contracts[YooLootContract].address).update((data) => {
         data.commits.push({deck: currentFlow.data.deck, nonce: currentNonce, lootId: tokenID})
         return data;
       });

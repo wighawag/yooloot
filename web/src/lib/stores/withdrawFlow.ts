@@ -1,6 +1,7 @@
 import {wallet, flow} from './wallet';
 import {BaseStoreWithData} from '$lib/utils/stores';
 import type { Deck } from './originalloot';
+import { YooLootContract } from '$lib/config';
 
 type Data = {
   lootId: string;
@@ -37,7 +38,7 @@ class PurchaseFlowStore extends BaseStoreWithData<WithdrawFlow, Data> {
     this.setPartial({step: 'CONNECTING'});
     flow.execute(async (contracts) => {
       this.setPartial({step: 'WAITING_TX'});
-      await contracts.YooLoot.withdrawAndGetXP(lootId);
+      await contracts[YooLootContract].withdrawAndGetXP(lootId);
       this.setPartial({step: 'SUCCESS'});
     });
   }

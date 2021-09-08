@@ -24,6 +24,31 @@ async function main() {
       counter++;
     }
   }
+
+  counter = 8001;
+  for (let i = 0; i < 3; i++) {
+    const sender = others[i];
+    console.log({sender});
+    if (sender) {
+      const MLoot = await ethers.getContract('MLoot', sender);
+      await waitFor(MLoot.claim(counter));
+      counter++;
+      await waitFor(MLoot.claim(counter));
+      counter++;
+      await waitFor(MLoot.claim(counter));
+      counter++;
+      await waitFor(MLoot.claim(counter));
+      counter++;
+      await waitFor(MLoot.claim(counter));
+      counter++;
+      await waitFor(MLoot.claim(counter));
+      counter++;
+      await waitFor(MLoot.claim(counter));
+      counter++;
+      await waitFor(MLoot.claim(counter));
+      counter++;
+    }
+  }
 }
 
 main()

@@ -1572,7 +1572,7 @@ contract TemporalLoot is ERC721Enumerable, ReentrancyGuard, Ownable {
     }
 
     function claim(uint256 tokenId) public nonReentrant {
-        require(tokenId > 8000 && tokenId < (block.number / 10) + 1, "Token ID invalid");
+        require(tokenId > 8000 , "Token ID invalid"); // && tokenId < (block.number / 10) + 1
         _safeMint(_msgSender(), tokenId);
     }
 

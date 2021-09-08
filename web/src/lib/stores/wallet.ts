@@ -105,3 +105,19 @@ fallback.subscribe(async (v) => {
     }
   }
 });
+
+
+if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as unknown as any).actualiseTime = async function() {
+    if (wallet.provider) {
+      const latestBlock = await wallet.provider?.getBlock('latest');
+      if (latestBlock) {
+        correctTime(latestBlock.timestamp);
+      }
+    }
+  }
+
+}
+
+

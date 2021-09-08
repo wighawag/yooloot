@@ -5,12 +5,16 @@ import type { Deck } from './originalloot';
 
 type Data = {
   lootId: string;
-  deck?: Deck
+  deck: Deck
+  nonce: number;
 };
 export type RevealFlow = {
   step:
   | 'IDLE'
   | 'CONNECTING'
+  | 'GETTING_DATA'
+  | 'NO_DECK_FOR_LOOT'
+  | 'ALREADY_RESOLVED'
   | 'WAITING_FOR_SIGNATURE'
   | 'CREATING_TX'
   | 'WAITING_TX'
@@ -38,7 +42,17 @@ class PurchaseFlowStore extends BaseStoreWithData<RevealFlow, Data> {
 
   async revealLootDeck(lootId: string, deck: Deck, nonce: number): Promise<void> {
     this.setPartial({step: 'CONNECTING'});
+    this.setData({lootId, deck, nonce})
     flow.execute(async (contracts) => {
+      this.setPartial({step: 'GETTING_DATA'});
+      const deckHash = await contracts.YooLoot.getDeckHash(lootId);
+      if (deckHash === '0x0000000000000000000000000000000000000000000000000000000000000001') {
+        this.setPartial({step: 'ALREADY_RESOLVED'});
+        return;
+      } else if (deckHash === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        this.setPartial({step: 'NO_DECK_FOR_LOOT'});
+        return;
+      }
       this.setPartial({step: 'WAITING_FOR_SIGNATURE'});
       const signature = await wallet.provider
       .getSigner()

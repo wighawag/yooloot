@@ -8,6 +8,7 @@
   import Modal from '$lib/components/Modal.svelte';
 import gamestate from '$lib/stores/gamestate';
 import { url } from '$lib/utils/url';
+import gameState from '$lib/stores/gamestate';
 
   $: nfts = nftsof($wallet.address);
 
@@ -42,9 +43,21 @@ import { url } from '$lib/utils/url';
   }
 
   $: commitOver = $gamestate.phase !== "IDLE"  && $gamestate.phase !== "LOADING" && $gamestate.phase !== "COMMIT"
+
+  $: destination = $gameState.phase === 'REVEAL' ? 'battle/reveal/' : 'battle/withdraw/';
+  $: destinationTitle = $gameState.phase === 'REVEAL' ? 'REVEAL!' : 'WITHDRAW!';
 </script>
 
 <WalletAccess>
+
+  <section
+    class="py-8 md:w-3/4 w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
+
+    {#if commitOver}
+      Commit Phase is over, time to <a href={url(destination)} class="border-red-600 border-2 p-2 m-2">{destinationTitle}</a>
+
+    {/if}
+  </section>
 
   {#if $chain.state !== 'Connected' && $chain.state !== 'Ready'}
     <div
@@ -70,12 +83,14 @@ import { url } from '$lib/utils/url';
 
   {#if $nfts.state === 'Ready'}
     {#if $nfts.tokens.length > 0}
+      {#if !commitOver}
       <div
         class="w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
         <p class="p-6">
             Here are your Loot to battle with, pick one
         </p>
       </div>
+      {/if}
     {:else if $chain.notSupported}
       <div
         class="py-8 px-10 w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
@@ -95,11 +110,6 @@ import { url } from '$lib/utils/url';
 
   <section
     class="py-8 md:w-3/4 w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
-
-    {#if commitOver}
-      Commit Phase is over, time to <a href={url('battle/reveal/')} class="border-red-600 border-2 p-2 m-2">REVEAL!</a>
-
-    {/if}
 
     {#if $wallet.state !== 'Ready'}
       <!-- <form class="mt-5 w-full max-w-sm">
@@ -134,9 +144,12 @@ import { url } from '$lib/utils/url';
                 {#if nft.error}
                   Error:
                   {nft.error}
+                <!-- {:else if nft.tokenSVG} -->
+                <!-- <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"> -->
+                <!-- {@html nft.tokenSVG} -->
+              <!-- </svg> -->
                 {:else if nft.image}
                   <img
-                    style={`image-rendering: pixelated; ${$nfts.burning[nft.id] ? 'filter: grayscale(100%);' : ''}`}
                     class="border-2 border-white"
                     width="400px"
                     height="400px"
@@ -185,6 +198,7 @@ import { url } from '$lib/utils/url';
     <div class="text-center">
       <h2>Loot {$commitFlow.data.loot.id} submited with nonce {$commitFlow.data.nonce} and the following deck :</h2>
       <p> {$commitFlow.data.deck}</p> <!-- TODO show power of each card-->
+      <p>You might as well take note of it. You ll need for the reveal phase</p>
       <p>In term of power, this is the following :</p>
       <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i])}</p> <!-- TODO show power of each card-->
       <button

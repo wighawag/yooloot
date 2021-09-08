@@ -58,29 +58,29 @@ const config: HardhatUserConfig = {
       url: node_url('localhost'),
       accounts: accounts(),
     },
-    staging: {
-      url: node_url('rinkeby'),
-      accounts: accounts('rinkeby'),
-    },
-    production: {
+    mainnet_loot: {
       url: node_url('mainnet'),
       accounts: accounts('mainnet'),
     },
-    mainnet: {
+    mainnet_mloot: {
       url: node_url('mainnet'),
       accounts: accounts('mainnet'),
     },
-    rinkeby: {
+    mainnet_lfe: {
+      url: node_url('mainnet'),
+      accounts: accounts('mainnet'),
+    },
+    rinkeby_loot: {
       url: node_url('rinkeby'),
       accounts: accounts('rinkeby'),
     },
-    kovan: {
-      url: node_url('kovan'),
-      accounts: accounts('kovan'),
+    rinkeby_mloot: {
+      url: node_url('rinkeby'),
+      accounts: accounts('rinkeby'),
     },
-    goerli: {
-      url: node_url('goerli'),
-      accounts: accounts('goerli'),
+    rinkeby_lfe: {
+      url: node_url('rinkeby'),
+      accounts: accounts('rinkeby'),
     },
   },
   paths: {

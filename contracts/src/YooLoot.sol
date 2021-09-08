@@ -182,6 +182,10 @@ contract YooLoot {
         winnerAddress = _deposits[winnerLootId];
     }
 
+    function getDeckHash(uint256 lootId) external view returns(bytes32) {
+        return _deckHashes[lootId];
+    }
+
     function getParams() external view returns (Parameters memory) {
         return _paramaters;
     }

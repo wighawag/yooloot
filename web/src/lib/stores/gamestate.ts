@@ -50,7 +50,8 @@ class GameStateStore extends BaseStore<GameState> {
   async update() {
     if (!this.$store.startTime && wallet.provider) {
 
-      const startTime = wallet.contracts.YooLoot.startTime();
+      const params = await wallet.contracts.YooLoot.getParams();
+      const {startTime} = params;
       this.setPartial({startTime});
     }
 
@@ -58,8 +59,16 @@ class GameStateStore extends BaseStore<GameState> {
     const timePassed = currentTime - this.$store.startTime;
     if (timePassed > 3 * week) {
       this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'})
+      if (!this.$store.winner) {
+        const winnerInfo = await wallet.contracts.YooLoot.winner();
+        this.setPartial({winner: winnerInfo.winnerAddress});
+      }
     } else if (timePassed > 2 * week) {
-      this.setPartial({timeLeftBeforeNextPhase: 3 * week - timePassed, phase: 'WINNER'})
+      this.setPartial({timeLeftBeforeNextPhase: 3 * week - timePassed, phase: 'WINNER'});
+      if (!this.$store.winner) {
+        const winnerInfo = await wallet.contracts.YooLoot.winner();
+        this.setPartial({winner: winnerInfo.winnerAddress});
+      }
     } else if (timePassed > 1 * week) {
       this.setPartial({timeLeftBeforeNextPhase: 2 * week - timePassed, phase: 'REVEAL'})
     } else {

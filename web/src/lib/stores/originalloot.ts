@@ -139,14 +139,27 @@ class NFTOfStore extends BaseStore<NFTs> {
       if (token.tokenURI) {
         const tokenURI = fixURI(token.tokenURI);
         try {
-          const response = await fetch(tokenURI);
-          const json = await response.json();
+          const tokenJSON = await (await fetch(token.tokenURI)).json();
+          // console.log(tokenJSON);
+          let tokenSVG = await (await fetch(tokenJSON.image)).text();
+          // console.log(tokenSVG);
+          for (let i = 0; i < 8; i++) {
+            const regex = new RegExp(`(<text.*y=")(${(i + 1) * 20})("[^>]+>)(.*?)(<\/text>)`, 'g');
+            const power = token.deckPower[i];
+            tokenSVG = tokenSVG.replace(regex, `$1${((i+1)*40 - 10)}$3 ${i} : $4 : $5<text x="10" y="${((i+1)*40)+6}" style="fill:red;">-> power: ${power}</text>`);
+            // text = text.replace(regex, `$1AAAAAAAAAAAAAAAAAA$3`);
+          }
+          const image = 'data:image/svg+xml;utf8,' + tokenSVG;
+
+          // const svgRegex = new RegExp(`(<svg [^>]+>)(.*?)(<\/svg\>)`, 'g');
+          // tokenSVG = tokenSVG.replace(svgRegex, '$2');
+
           newResult.push({
             id: token.id,
             tokenURI,
-            name: json.name,
-            description: json.description,
-            image: fixURI(json.image || json.image_url),
+            name: tokenJSON.name,
+            description: tokenJSON.description,
+            image,
             deckPower: token.deckPower
           });
         } catch (e) {
@@ -196,11 +209,11 @@ class NFTOfStore extends BaseStore<NFTs> {
     for (const tx of txs) {
       if (!tx.finalized && tx.args) {
         // based on args : so need to ensure args are available
-        if (tx.status != 'cancelled' && tx.status !== 'failure') {
-          if (tx.args.length === 1) {
-            this.$store.burning[tx.args[0] as string] = true;
-          }
-        }
+        // if (tx.status != 'cancelled' && tx.status !== 'failure') {
+        //   if (tx.args.length === 1) {
+        //     this.$store.burning[tx.args[0] as string] = true;
+        //   }
+        // }
         // const foundIndex = this.$.findIndex(
         //   (v) => v.id.toLowerCase() === tx.from.toLowerCase()
         // );

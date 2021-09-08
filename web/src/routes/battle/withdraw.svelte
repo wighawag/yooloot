@@ -1,21 +1,59 @@
 <script lang="ts">
   import WalletAccess from '$lib/WalletAccess.svelte';
   import withdrawFlow from '$lib/stores/withdrawFlow';
+  import gamestate from '$lib/stores/gamestate';
+import { url } from '$lib/utils/url';
+import { flow, wallet } from '$lib/stores/wallet';
 
 
+  let winnerLootId: string;
   let lootId: string;
 
   function withdraw() {
     withdrawFlow.withdraw(lootId);
   }
+
+  function claimVictoryLoot() {
+    flow.execute(async (contracts) => {
+      await contracts.YooLoot.claimVictoryLoot(winnerLootId);
+    });
+  }
+
+  $: withdrawNotReady = $gamestate.phase === "COMMIT" || $gamestate.phase === "REVEAL"
+  $: winnerWithdrawReady = $gamestate.phase === 'WINNER';
+  $: winnerWithdrawOver = $gamestate.phase === 'WITHDRAW';
+
+  $: destination = $gamestate.phase === 'REVEAL' ? 'battle/reveal/' : 'battle/commit/';
+  $: destinationTitle = $gamestate.phase === 'REVEAL' ? 'REVEAL!' : 'PLAY!';
 </script>
 
 <WalletAccess>
   <section
     class="py-8 md:w-3/4 w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
 
-    <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
+  {#if withdrawNotReady}
+    <p>The Withdraw phase is not ready yet, please go to <a href={url(destination)} class="border-red-600 border-2 p-2 m-2">here</a> to {destinationTitle}</p>
+  {:else}
+    <p>Winner is {$gamestate.winner}</p>
+  {/if}
+  {#if !winnerWithdrawOver}
+    {#if $wallet.address && $wallet.address.toLowerCase() === $gamestate.winner?.toLowerCase()}
+      <h2>Congrats! You Won!</h2>
+      <p>Please pick a loot to withdraw that is not your (sorry not UI yet to pick)</p>
+      <label for="winnerLootId">LootId</label><input id="winnerLootId" type="text" class="bg-black" bind:value={winnerLootId}/>
 
-    <button class="my-4 p-1 border-2 border-red-600" on:click={withdraw}>WITHDRAW</button>
-  </section>
+      <button class="my-4 p-1 border-2 border-red-600" on:click={claimVictoryLoot}>LOOT!</button>
+    {:else }
+      Waiting for winner to pick its winning loot
+    {/if}
+  {:else}
+
+      <p class="mt-5">You can now pick your loot (Assuming the winner did not chose it)</p>
+
+      <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
+
+      <button class="my-4 p-1 border-2 border-red-600" on:click={withdraw}>WITHDRAW</button>
+  {/if}
+</section>
+
 </WalletAccess>

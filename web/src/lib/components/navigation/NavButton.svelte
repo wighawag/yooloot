@@ -43,13 +43,13 @@
     disabledClasses = 'opacity-50 ' + (waitOnDisabled ? 'cursor-wait ' : '');
 
     if (primary) {
-      colorClasses = ` text-white bg-pink-600`;
-      hoverClasses += ` hover:bg-pink-500`;
-      focusClasses += ` focus-not-active:bg-pink-500`;
-      activeClasses += ` active:bg-pink-600 active:border-pink-500`;
-      activatedClasses += ` bg-pink-600 border-pink-500`;
+      colorClasses = ` text-white bg-red-600`;
+      hoverClasses += ` hover:bg-red-500`;
+      focusClasses += ` focus-not-active:bg-red-500`;
+      activeClasses += ` active:bg-red-600 active:border-red-500`;
+      activatedClasses += ` bg-red-600 border-red-500`;
     } else if (secondary) {
-      colorClasses = `text-pink-600 bg-gray-100 dark:text-pink-500 dark:bg-gray-900`;
+      colorClasses = `text-red-600 bg-gray-100 dark:text-red-500 dark:bg-gray-900`;
       hoverClasses += ` hover:bg-gray-50 dark:hover:bg-gray-800`;
       focusClasses += ` focus-not-active:bg-gray-50 dark:focus-not-active:bg-gray-800`;
       activeClasses += ` active:bg-gray-100 active:border-gray-50 dark:active:bg-gray-900 dark:active:border-gray-800 `;
@@ -67,11 +67,11 @@
       activeClasses += ` active:bg-red-100`;
       activatedClasses += ` bg-red-100`;
     } else if (white) {
-      colorClasses = `text-pink-600 bg-white`;
-      hoverClasses += ` hover:text-pink-500`;
-      focusClasses += ` focus-not-active:text-pink-500`;
-      activeClasses += ` active:text-pink-600`;
-      activatedClasses += ` text-pink-600`;
+      colorClasses = `text-red-600 bg-white`;
+      hoverClasses += ` hover:text-red-500`;
+      focusClasses += ` focus-not-active:text-red-500`;
+      activeClasses += ` active:text-red-600`;
+      activatedClasses += ` text-red-600`;
     }
   }
 

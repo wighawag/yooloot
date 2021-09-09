@@ -114,6 +114,9 @@ const config: HardhatUserConfig = {
         artifacts: 'node_modules/loot-xp-registry/export/artifacts',
         deploy: 'node_modules/loot-xp-registry/export/deploy',
       },
+      {
+        artifacts: 'node_modules/loot-for-everyone-contracts/export/artifacts',
+      },
     ],
   },
 };

@@ -7,13 +7,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const {deployer} = await getNamedAccounts();
 
-  // TODO
-  // await deploy('LootForEveryone', {
-  //   from: deployer,
-  //   skipIfAlreadyDeployed: true,
-  //   log: true,
-  //   autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
-  // });
+  await deploy('SyntheticLoot', {
+    from: deployer,
+    skipIfAlreadyDeployed: true,
+    log: true,
+    autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
+  });
 };
 export default func;
-func.tags = ['LootForEveryone'];
+func.tags = ['SyntheticLoot'];

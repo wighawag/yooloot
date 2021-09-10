@@ -1,16 +1,17 @@
 <script lang="ts">
   import '../service-worker-handler';
   import '../global.css';
-  import {url} from '$lib/utils/url';
-  import NavBar from '$lib/components/navigation/NavBar.svelte';
+  import {url, urlOfPath} from '$lib/utils/url';
+  import {page} from '$app/stores';
+  import { goto } from '$app/navigation';
+  import Tab from '$lib/components/battle/Tab.svelte';
   import Notifications from '$lib/components/notification/Notifications.svelte';
   import NoInstallPrompt from '$lib/components/NoInstallPrompt.svelte';
   import NewVersionNotification from '$lib/components/NewVersionNotification.svelte';
   // import Install from './components/Install.svelte';
 
   import {appDescription, url as appUrl} from '../../application.json';
-  import Modal from '$lib/components/Modal.svelte';
-  import { flow, wallet } from '$lib/stores/wallet';
+  import { base } from '$app/paths';
 
   const title = 'yooloot';
   const description = appDescription;
@@ -24,6 +25,14 @@
   //     await wallet.provider.send('evm_mine', []);
   //   })
   // }
+
+
+  let selected = 'commit/'
+  async function select(e) {
+    console.log(`selected : ${selected}`, e.target.value);
+    await goto(url(e.target.value));
+  }
+
 </script>
 
 <svelte:head>
@@ -42,21 +51,49 @@
   <meta property="twitter:image" content={previewImage} />
 </svelte:head>
 
+<div class="text-white text-xl">
 <NoInstallPrompt />
 <NewVersionNotification />
 <Notifications />
-<NavBar
-  links={[
-    {href: url(''), title: 'Home'},
-    {href: url('battle/'), title: 'Battle'},
-    // {href: url('search/'), title: 'Search'},
-    // {href: url('transmute/'), title: 'Transmute'}
-  ]} />
+
+
+<a href="https://yooloot.xyz"><img
+      class="m-2 text-white inline"
+      src={`${base}/images/yooloot-title-fit.png`}
+      alt="YooLoot"
+      style="height:34px;"
+      height="34px"
+    />(For Everyone)</a>
 
 
 <!-- <button class="text-red-600 underline" on:click={increaseTime}>increase time by 1 week</button> -->
 
-<div class="text-white">
+
+<div>
+  <div class="sm:hidden">
+    <label for="tabs" class="sr-only">Select a tab</label>
+    <select on:change={select} id="tabs" name="tabs" class="text-white bg-black block w-full focus:ring-offset-red-600 focus:border-red-600 border-gray-300 rounded-md">
+      <option selected={urlOfPath('', $page.path)} value="">Rules</option>
+
+      <option selected={urlOfPath('commit/', $page.path)} value="commit/">Commit</option>
+
+      <option selected={urlOfPath('reveal/', $page.path)} value="reveal/">Reveal</option>
+
+      <option selected={urlOfPath('withdraw/', $page.path)} value="withdraw/">Withdraw</option>
+    </select>
+  </div>
+  <div class="hidden sm:block">
+    <nav class="relative z-0 rounded-lg shadow flex divide-x divide-gray-200" aria-label="Tabs">
+      <!-- Current: "text-gray-900", Default: "text-gray-500 hover:text-gray-700" -->
+      <Tab href={url('')} title="Rules" selected={urlOfPath('', $page.path)}></Tab>
+      <Tab href={url('commit/')} title="Commit" selected={urlOfPath('commit/', $page.path)}></Tab>
+      <Tab href={url('reveal/')} title="Reveal" selected={urlOfPath('reveal/', $page.path)}></Tab>
+      <Tab href={url('withdraw/')} title="Withdraw" selected={urlOfPath('withdraw', $page.path)}></Tab>
+
+    </nav>
+  </div>
+</div>
+
 
 
 <slot />

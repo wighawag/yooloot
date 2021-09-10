@@ -2,7 +2,7 @@
 pragma solidity 0.8.7;
 
 import "./interfaces/ILoot.sol";
-import "./interfaces/ILootXPRegistry.sol";
+import "./interfaces/ILootXP.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
@@ -35,16 +35,16 @@ contract YooLoot {
     address private immutable _mloot;
     address private immutable _lootForEveryone;
 
-    ILootXPRegistry private immutable _lootXPRegistry;
+    ILootXP private immutable _lootXP;
 
     constructor(
-        ILootXPRegistry lootXPRegistry,
+        ILootXP lootXP,
         address[3] memory authorizedLoots,
         ILoot loot,
         bool winnerGetLoot,
         uint24 periodLength
     ) {
-        _lootXPRegistry = lootXPRegistry;
+        _lootXP = lootXP;
         _originalLoot = authorizedLoots[0];
         _mloot = authorizedLoots[1];
         _lootForEveryone = authorizedLoots[2];
@@ -116,7 +116,7 @@ contract YooLoot {
         address yooloot = Clones.clone(implementation);
         if (generateXP) {
             YooLoot(yooloot).init(loot, winnerGetLoot, periodLength);
-            _lootXPRegistry.setSource(yooloot, true);
+            _lootXP.setSource(yooloot, true);
         } else {
             YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, periodLength);
         }
@@ -135,18 +135,18 @@ contract YooLoot {
 
     function revealLootDeck(
         uint256 lootId,
-        uint8[8] calldata deck,
+        uint8[8] calldata deckWithStartIndex1,
         bytes32 secret
     ) external {
         require(block.timestamp - _paramaters.startTime > 1 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_STARTED");
         require(block.timestamp - _paramaters.startTime < 2 * _paramaters.periodLength, "REVEAL_PERIOD_OVER");
         bytes32 deckHash = _deckHashes[lootId];
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "ALREADY_REVEALED");
-        require(keccak256(abi.encodePacked(secret, lootId, deck)) == deckHash, "INVALID_SECRET'");
+        require(keccak256(abi.encodePacked(secret, lootId, deckWithStartIndex1)) == deckHash, "INVALID_SECRET'");
         _deckHashes[lootId] = 0x0000000000000000000000000000000000000000000000000000000000000001;
         uint8[8] memory indicesUsed;
         for (uint8 i = 0; i < 8; i++) {
-            uint8 index = deck[i];
+            uint8 index = deckWithStartIndex1[i] - 1;
             indicesUsed[index]++;
             uint8 power = pluckPower(lootId, index, address(_paramaters.loot) == _lootForEveryone);
             uint256 current = _rounds[i][power];
@@ -159,7 +159,7 @@ contract YooLoot {
         for (uint8 i = 0; i < 8; i++) {
             require(indicesUsed[i] == 1, "INVALID_DECK");
         }
-        emit LootDeckRevealed(lootId, deck);
+        emit LootDeckRevealed(lootId, deckWithStartIndex1);
     }
 
     // solhint-disable-next-line code-complexity
@@ -179,9 +179,14 @@ contract YooLoot {
                 uint256 lootId = _rounds[round][power - 1];
                 if (lootId > 0 && lootId != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
                     winnerLootPerRound[round] = lootId;
+                    winnerAddress = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
                     break;
                 }
             }
+        }
+
+        if (winnerAddress != 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF) { // nobody won a round;
+            return (address(0), 0, 0);
         }
 
         for (uint8 i = 0; i < 8; i++) {
@@ -252,7 +257,7 @@ contract YooLoot {
         uint256 balance = _paramaters.loot.balanceOf(owner);
         require(balance >= start + num, "TOO_MANY_TOKEN_REQUESTED");
         tokens = new TokenData[](num);
-        uint8[8] memory baseDeck = [0,1,2,3,4,5,6,7];
+        uint8[8] memory baseDeck = [1,2,3,4,5,6,7,8];
         uint256 i = 0;
         while (i < num) {
             uint256 id = _paramaters.loot.tokenOfOwnerByIndex(owner, start + i);
@@ -291,16 +296,16 @@ contract YooLoot {
         _paramaters.loot.transferFrom(address(this), msg.sender, lootId);
         (, uint256 winnerLootId, uint256 winnerScore) = winner();
         if (lootId == winnerLootId) {
-            _lootXPRegistry.addXp(lootId, 10000 * winnerScore);
+            _lootXP.addXP(lootId, 10000 * winnerScore);
         } else {
             uint256 score = individualScore(lootId);
-            _lootXPRegistry.addXp(lootId, 100 + 1000 * score);
+            _lootXP.addXP(lootId, 100 + 1000 * score);
         }
     }
 
-    function getDeckPower(uint256 lootId, uint8[8] memory deck, bool lootForEveryone) public pure returns (uint8[8] memory deckPower) {
+    function getDeckPower(uint256 lootId, uint8[8] memory deckWithStartIndex1, bool lootForEveryone) public pure returns (uint8[8] memory deckPower) {
         for (uint8 i = 0; i < 8; i++) {
-            deckPower[i] = pluckPower(lootId, deck[i], lootForEveryone);
+            deckPower[i] = pluckPower(lootId, deckWithStartIndex1[i] - 1, lootForEveryone);
         }
     }
 

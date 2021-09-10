@@ -147,7 +147,7 @@ class NFTOfStore extends BaseStore<NFTs> {
           for (let i = 0; i < 8; i++) {
             const regex = new RegExp(`(<text.*y=")(${(i + 1) * 20})("[^>]+>)(.*?)(<\/text>)`, 'g');
             const power = token.deckPower[i];
-            tokenSVG = tokenSVG.replace(regex, `$1${((i+1)*40 - 10)}$3 ${i} : $4 : $5<text x="10" y="${((i+1)*40)+6}" style="fill:red;">-> power: ${power}</text>`);
+            tokenSVG = tokenSVG.replace(regex, `$1${((i+1)*40 - 10)}$3 ${i+1} : $4 : $5<text x="10" y="${((i+1)*40)+6}" style="fill:red;">-> power: ${power}</text>`);
             // text = text.replace(regex, `$1AAAAAAAAAAAAAAAAAA$3`);
           }
           const image = 'data:image/svg+xml;utf8,' + tokenSVG;

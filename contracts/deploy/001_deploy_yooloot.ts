@@ -4,7 +4,7 @@ import {constants} from 'ethers';
 const {AddressZero} = constants;
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {deployer} = await hre.getNamedAccounts();
+  const {deployer, lootXPOwner} = await hre.getNamedAccounts();
   const {deploy, execute, read, log} = hre.deployments;
 
   const Loot = await hre.deployments.get('Loot');
@@ -12,7 +12,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const MLoot = await hre.deployments.get('MLoot');
   const LootForEveryone = await hre.deployments.getOrNull('LootForEveryone');
 
-  const LootXPRegistry = await hre.deployments.get('LootXPRegistry');
+  const LootXP = await hre.deployments.get('LootXP');
 
   if (hre.network.name === 'mainnet') {
     if (!MLoot || !LootForEveryone) {
@@ -23,7 +23,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const YooLoot = await deploy('YooLoot', {
     from: deployer,
     args: [
-      LootXPRegistry.address,
+      LootXP.address,
       [
         Loot.address,
         MLoot?.address || AddressZero,
@@ -48,11 +48,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
 
-  const isSource = await read('LootXPRegistry', 'xpSource', YooLoot.address);
+  const isSource = await read('LootXP', 'xpSource', YooLoot.address);
   if (!isSource) {
     const receipt = await execute(
-      'LootXPRegistry',
-      {from: deployer, log: true},
+      'LootXP',
+      {from: lootXPOwner, log: true},
       'setSource',
       YooLoot.address,
       true
@@ -61,15 +61,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // TODO decide
-  const isGenerator = await read(
-    'LootXPRegistry',
-    'xpSourceAndSyncGenerator',
-    YooLoot.address
-  );
+  const isGenerator = await read('LootXP', 'generator', YooLoot.address);
   if (!isGenerator) {
     const receipt = await execute(
-      'LootXPRegistry',
-      {from: deployer, log: true},
+      'LootXP',
+      {from: lootXPOwner, log: true},
       'setGenerator',
       YooLoot.address,
       true
@@ -79,4 +75,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 func.tags = ['YooLoot'];
-func.dependencies = ['Loot', 'LootXPRegistry'];
+func.dependencies = ['Loot', 'LootXP'];

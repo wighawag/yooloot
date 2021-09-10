@@ -37,6 +37,9 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: {
     deployer: 0,
+    lootXPOwner: {
+      hardhat: 1,
+    },
   },
   networks: {
     hardhat: {
@@ -111,8 +114,8 @@ const config: HardhatUserConfig = {
       : undefined,
     contracts: [
       {
-        artifacts: 'node_modules/loot-xp-registry/export/artifacts',
-        deploy: 'node_modules/loot-xp-registry/export/deploy',
+        artifacts: 'node_modules/lootxp-contracts/export/artifacts',
+        deploy: 'node_modules/lootxp-contracts/export/deploy',
       },
       {
         artifacts: 'node_modules/loot-for-everyone-contracts/export/artifacts',

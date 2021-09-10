@@ -45,22 +45,25 @@ type User = {
   Loot: Loot;
 };
 
-async function participate(user: User): Promise<FullDeckInfo> {
-  const tokenId = '' + Math.floor(Math.random() * 7000);
+async function participate(
+  user: User,
+  tokenIdChosen?: string
+): Promise<FullDeckInfo> {
+  const tokenId = tokenIdChosen || '' + Math.floor(Math.random() * 7000);
   await waitFor(user.Loot.claim(tokenId));
   await waitFor(user.Loot.setApprovalForAll(user.YooLoot.address, true));
   const {deck, deckHash, secret} = createDeck(
     tokenId,
-    [0, 1, 2, 3, 4, 5, 6, 7]
+    [8, 7, 6, 5, 4, 3, 2, 1]
   );
 
   const deckPower = await user.YooLoot.getDeckPower(tokenId, deck, false);
-  console.log({
-    // tokenURI,
-    tokenId,
-    address: user.address,
-    deckPower,
-  });
+  // console.log({
+  //   // tokenURI,
+  //   tokenId,
+  //   address: user.address,
+  //   deckPower,
+  // });
 
   await waitFor(user.YooLoot.commitLootDeck(tokenId, deckHash));
   return {
@@ -112,6 +115,28 @@ describe('YooLoot', function () {
     );
   });
 
+  // it('find loot with same range of power', async function () {
+  //   const {YooLoot} = await setup();
+
+  //   const deckPowers: {[deck: string]: number} = {};
+  //   for (let tokenId = 7000; tokenId < 8001; tokenId++) {
+  //     const deckPower = await YooLoot.getDeckPower(
+  //       tokenId,
+  //       [1, 2, 3, 4, 5, 6, 7, 8],
+  //       false
+  //     );
+  //     const id = deckPower.join(',');
+  //     console.log(`"${id}",`);
+  //     const already = deckPowers[id];
+  //     if (already) {
+  //       console.log({tokenId, already});
+  //       break;
+  //     } else {
+  //       deckPowers[id] = tokenId;
+  //     }
+  //   }
+  // });
+
   it('commit wait, reveal, withdraw', async function () {
     const {users, YooLoot} = await setup();
     const tokenId = '1';
@@ -120,7 +145,7 @@ describe('YooLoot', function () {
 
     const {deck, deckHash, secret} = createDeck(
       tokenId,
-      [0, 1, 2, 3, 4, 5, 6, 7]
+      [1, 2, 3, 4, 5, 6, 7, 8]
     );
     await waitFor(users[0].YooLoot.commitLootDeck(tokenId, deckHash));
 
@@ -169,5 +194,75 @@ describe('YooLoot', function () {
     await users[0].YooLoot.withdrawAndGetXP(user0.tokenId);
 
     await users[1].YooLoot.withdrawAndGetXP(user1.tokenId);
+  });
+
+  it('4 players: commit wait, reveal, withdraw', async function () {
+    const {users, YooLoot} = await setup();
+
+    const user0 = await participate(users[0], '1510');
+    const user1 = await participate(users[1], '1407');
+    const user2 = await participate(users[2], '6131');
+    const user3 = await participate(users[3], '5165');
+
+    await increaseTime(7 * 24 * 60 * 60);
+
+    await reveal(user0);
+    await reveal(user1);
+    await reveal(user2);
+    await reveal(user3);
+
+    await increaseTime(7 * 24 * 60 * 60, true);
+
+    const {winnerAddress, winnerLootId, winnerScore} = await YooLoot.winner();
+    const scoreFor0 = (await YooLoot.individualScore(user0.tokenId)).toNumber();
+    const scoreFor1 = (await YooLoot.individualScore(user1.tokenId)).toNumber();
+    const scoreFor2 = (await YooLoot.individualScore(user2.tokenId)).toNumber();
+    const scoreFor3 = (await YooLoot.individualScore(user3.tokenId)).toNumber();
+    console.log({
+      winnerAddress,
+      winnerLootId: winnerLootId.toString(),
+      winnerScore: winnerScore.toNumber(),
+      user0: users[0].address,
+      user1: users[1].address,
+      scoreFor0,
+      scoreFor1,
+      user2: users[2].address,
+      user3: users[3].address,
+      scoreFor2,
+      scoreFor3,
+    });
+
+    await increaseTime(7 * 24 * 60 * 60, true);
+
+    await users[0].YooLoot.withdrawAndGetXP(user0.tokenId);
+
+    await users[1].YooLoot.withdrawAndGetXP(user1.tokenId);
+  });
+
+  it('4 players: commit wait, reveal, withdraw', async function () {
+    const {users, YooLoot} = await setup();
+
+    const participants = [];
+    for (let i = 0; i < users.length; i++) {
+      participants.push(await participate(users[i], '' + (i + 1)));
+    }
+
+    await increaseTime(7 * 24 * 60 * 60);
+
+    for (const participant of participants) {
+      await reveal(participant);
+    }
+
+    await increaseTime(7 * 24 * 60 * 60, true);
+
+    const {winnerAddress, winnerLootId, winnerScore} = await YooLoot.winner();
+    console.log({
+      winnerAddress,
+      winnerLootId: winnerLootId.toString(),
+      winnerScore: winnerScore.toNumber(),
+    });
+
+    await increaseTime(7 * 24 * 60 * 60, true);
+    // TODO check
   });
 });

@@ -6,10 +6,10 @@
   import {wallet, flow, chain} from '$lib/stores/wallet';
   import commitFlow from '$lib/stores/commitFlow';
   import Modal from '$lib/components/Modal.svelte';
-import gamestate from '$lib/stores/gamestate';
-import { url } from '$lib/utils/url';
-import gameState from '$lib/stores/gamestate';
-import { LootContract } from '$lib/config';
+  import gamestate from '$lib/stores/gamestate';
+  import { url } from '$lib/utils/url';
+  import gameState from '$lib/stores/gamestate';
+  import { LootContract } from '$lib/config';
 
   $: nfts = nftsof($wallet.address);
 
@@ -33,11 +33,11 @@ import { LootContract } from '$lib/config';
       if (isNaN(elem)) {
         throw new Error(`invalid deck: not all element are numbers`);
       }
-      checks[elem] ++;
+      checks[elem-1] ++;
     }
     for (const check of checks) {
       if (check !== 1) {
-        throw new Error(`invalid deck: all number, 0,1,2,3,4,5,6,7 need to be present one and only one time`);
+        throw new Error(`invalid deck: all number, 1,2,3,4,5,6,7,8 need to be present one and only one time`);
       }
     }
     commitFlow.chooseDeck(deck);
@@ -45,7 +45,7 @@ import { LootContract } from '$lib/config';
 
   $: commitOver = $gamestate.phase !== "IDLE"  && $gamestate.phase !== "LOADING" && $gamestate.phase !== "COMMIT"
 
-  $: destination = $gameState.phase === 'REVEAL' ? 'battle/reveal/' : 'battle/withdraw/';
+  $: destination = $gameState.phase === 'REVEAL' ? 'reveal/' : 'withdraw/';
   $: destinationTitle = $gameState.phase === 'REVEAL' ? 'REVEAL!' : 'WITHDRAW!';
 </script>
 
@@ -182,7 +182,7 @@ import { LootContract } from '$lib/config';
           <h2>What is your deck order?</h2>
 
           <p> this is your card power:</p>
-          <p>{$commitFlow.data.loot.deckPower.map((v,i) => `${i}:${v}`).join(" / ")}</p>
+          <p>{$commitFlow.data.loot.deckPower.map((v,i) => `${i+1}:${v}`).join(" / ")}</p>
 
           <input bind:value={deckString} class="bg-black" type="text" />
           <button
@@ -201,7 +201,7 @@ import { LootContract } from '$lib/config';
       <p> {$commitFlow.data.deck}</p> <!-- TODO show power of each card-->
       <p>You might as well take note of it. You ll need for the reveal phase</p>
       <p>In term of power, this is the following :</p>
-      <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i])}</p> <!-- TODO show power of each card-->
+      <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i-1])}</p> <!-- TODO show power of each card-->
       <button
         class="mt-5 p-1 border border-yellow-500"
         label="Pick The Loot"
@@ -218,7 +218,7 @@ import { LootContract } from '$lib/config';
       {:else}
         <div class="text-center">
           <h2>Loot {$commitFlow.data.loot.id}</h2>
-          <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i])}</p> <!-- TODO show power of each card-->
+          <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i - 1])}</p> <!-- TODO show power of each card-->
           <button
             class="mt-5 p-1 border border-yellow-500"
             label="Pick The Loot"

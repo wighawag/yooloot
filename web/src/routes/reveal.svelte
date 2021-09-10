@@ -47,9 +47,9 @@ import Modal from '$lib/components/Modal.svelte';
 
     {#if revealOver}
       Reveal is over. Any Loot not resolved is lost forever!
-      time to check the widthdrawal and see who won the game <a href={url('battle/withdraw/')} class="border-red-600 border-2 p-2 m-2">WITHDRAW!</a>
+      time to check the widthdrawal and see who won the game <a href={url('withdraw/')} class="border-red-600 border-2 p-2 m-2">WITHDRAW!</a>
     {:else if revealNotReady}
-      The commit phase is not over yet, please go to <a href={url('battle/commit/')} class="border-red-600 border-2 p-2 m-2">here</a> to play!
+      The commit phase is not over yet, please go to <a href={url('commit/')} class="border-red-600 border-2 p-2 m-2">here</a> to play!
     {:else}
       <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
       <label for="deck">deck</label><input id="deck" type="text" class="bg-black" bind:value={deckString}/>

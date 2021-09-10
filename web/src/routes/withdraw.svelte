@@ -24,7 +24,7 @@ import { YooLootContract } from '$lib/config';
   $: winnerWithdrawReady = $gamestate.phase === 'WINNER';
   $: winnerWithdrawOver = $gamestate.phase === 'WITHDRAW';
 
-  $: destination = $gamestate.phase === 'REVEAL' ? 'battle/reveal/' : 'battle/commit/';
+  $: destination = $gamestate.phase === 'REVEAL' ? 'reveal/' : 'commit/';
   $: destinationTitle = $gamestate.phase === 'REVEAL' ? 'REVEAL!' : 'PLAY!';
 </script>
 

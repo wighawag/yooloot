@@ -1,0 +1,787 @@
+{
+  "address": "0x34079685eD1938A137ea0074B581cbaBf62780E1",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousImplementation",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "ProxyImplementationUpdated",
+      "type": "event"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes4",
+          "name": "id",
+          "type": "bytes4"
+        }
+      ],
+      "name": "supportsInterface",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        }
+      ],
+      "name": "upgradeTo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newImplementation",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "upgradeToAndCall",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newYooLoot",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "authorizedAsXPSource",
+          "type": "bool"
+        }
+      ],
+      "name": "Cloned",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        }
+      ],
+      "name": "LootDeckCanceled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8[8]",
+          "name": "deck",
+          "type": "uint8[8]"
+        }
+      ],
+      "name": "LootDeckRevealed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "deckHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "LootDeckSubmitted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "xpGaimed",
+          "type": "uint256"
+        }
+      ],
+      "name": "LootWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "winner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "playerPastOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        }
+      ],
+      "name": "WinnerWithdrawal",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "oldLootId",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelDeck",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "oldLootId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "deckHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "changeDeck",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "claimVictoryERC20",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lootToPick",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimVictoryLoot",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ILoot",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        }
+      ],
+      "name": "clone",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "deckHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "commitLootDeck",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ILoot",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        }
+      ],
+      "name": "freeFormClone",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ILoot",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        }
+      ],
+      "name": "freeFormInit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getDeckHash",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8[8]",
+          "name": "deckWithStartIndex1",
+          "type": "uint8[8]"
+        },
+        {
+          "internalType": "bool",
+          "name": "lootForEveryone",
+          "type": "bool"
+        }
+      ],
+      "name": "getDeckPower",
+      "outputs": [
+        {
+          "internalType": "uint8[8]",
+          "name": "deckPower",
+          "type": "uint8[8]"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getParams",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "contract ILoot",
+              "name": "loot",
+              "type": "address"
+            },
+            {
+              "internalType": "uint40",
+              "name": "startTime",
+              "type": "uint40"
+            },
+            {
+              "internalType": "uint8",
+              "name": "commit3HPeriod",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "reveal3HPeriod",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "winner3HPeriod",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "winnerGetLoot",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct YooLoot.Parameters",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTokenData",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "tokenURI",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8[8]",
+              "name": "deckPower",
+              "type": "uint8[8]"
+            }
+          ],
+          "internalType": "struct YooLoot.TokenData",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "start",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "num",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTokenDataOfOwner",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "tokenURI",
+              "type": "string"
+            },
+            {
+              "internalType": "uint8[8]",
+              "name": "deckPower",
+              "type": "uint8[8]"
+            }
+          ],
+          "internalType": "struct YooLoot.TokenData[]",
+          "name": "tokens",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        }
+      ],
+      "name": "individualScore",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "score",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ILoot",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        }
+      ],
+      "name": "init",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8[8]",
+          "name": "deckWithStartIndex1",
+          "type": "uint8[8]"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "secret",
+          "type": "bytes32"
+        }
+      ],
+      "name": "revealLootDeck",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "winner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "winnerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "winnerLootId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "winnerScore",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lootId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawAndGetXP",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "implementationAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "ownerAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "constructor"
+    }
+  ]
+}

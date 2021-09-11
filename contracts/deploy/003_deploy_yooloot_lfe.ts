@@ -15,9 +15,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return numDays * 8;
   }
 
-  const commit3HPeriod = daysIn3HPeriods(7);
-  const reveal3HPeriod = daysIn3HPeriods(3);
-  const winner3HPeriod = daysIn3HPeriods(1);
+  let commit3HPeriod = daysIn3HPeriods(7);
+  let reveal3HPeriod = daysIn3HPeriods(3);
+  let winner3HPeriod = daysIn3HPeriods(1);
+
+  if (hre.network.name === 'goerli') {
+    commit3HPeriod = 1;
+    reveal3HPeriod = 1;
+    winner3HPeriod = 1;
+  }
 
   const receipt = await execute(
     'YooLoot',

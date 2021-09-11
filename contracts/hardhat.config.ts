@@ -38,6 +38,7 @@ const config: HardhatUserConfig = {
   namedAccounts: {
     deployer: 0,
     lootXPOwner: {
+      goerli: 0,
       hardhat: 1,
     },
   },

@@ -8,6 +8,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployer} = await hre.getNamedAccounts();
   const {deploy, execute, read} = hre.deployments;
 
+  if (hre.network.name.startsWith('arbitrum')) {
+    return;
+  }
+
   const YooLoot = await hre.deployments.get('YooLoot');
   const LootForEveryone = await hre.deployments.get('LootForEveryone');
 

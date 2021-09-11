@@ -20,7 +20,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 20000000,
+            runs: 1000000,
           },
         },
       },
@@ -33,12 +33,21 @@ const config: HardhatUserConfig = {
           },
         },
       },
+      {
+        version: '0.6.12',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
     ],
   },
   namedAccounts: {
     deployer: 0,
     lootXPOwner: {
-      goerli: 0,
+      default: 0,
       hardhat: 1,
     },
   },
@@ -73,6 +82,14 @@ const config: HardhatUserConfig = {
     mainnet: {
       url: node_url('mainnet'),
       accounts: accounts('mainnet'),
+    },
+    arbitrum_testnet: {
+      url: node_url('arbitrum_testnet'),
+      accounts: accounts('arbitrum_testnet'),
+    },
+    arbitrum: {
+      url: node_url('arbitrum'),
+      accounts: accounts('arbitrum'),
     },
     rinkeby: {
       url: node_url('rinkeby'),

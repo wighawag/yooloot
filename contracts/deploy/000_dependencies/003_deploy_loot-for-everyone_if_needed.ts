@@ -5,6 +5,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, getNamedAccounts} = hre;
   const {deploy} = deployments;
 
+  if (hre.network.name.startsWith('arbitrum')) {
+    return;
+  }
+
   const Loot = await deployments.get('Loot');
   const SyntheticLoot = await deployments.get('SyntheticLoot');
 

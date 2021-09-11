@@ -7,6 +7,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const {deployer} = await getNamedAccounts();
 
+  if (hre.network.name.startsWith('arbitrum')) {
+    return;
+  }
+
   await deploy('MLoot', {
     contract: 'TemporalLoot',
     from: deployer,

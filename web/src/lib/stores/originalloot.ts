@@ -114,7 +114,7 @@ class NFTOfStore extends BaseStore<NFTs> {
       const result: {tokenURI: string; id: string, deckPower: Deck}[] = [];
       for (const token of tokens) {
         result.push({
-          tokenURI: token.tokenURI,
+          tokenURI: token.tokenURI && token.tokenURI != "" ? token.tokenURI : `data:text/plain,{"name":"${token.id.toString()}","image":"data:image/svg+xml,<svg viewBox='0 0 32 16' xmlns='http://www.w3.org/2000/svg'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' style='fill: rgb(219, 39, 119); font-size: 12px;'>${token.id.toString()}</text></svg>","description":""}`,
           id: token.id.toString(),
           deckPower: token.deckPower
         });

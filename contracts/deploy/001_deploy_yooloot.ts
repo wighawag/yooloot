@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const Loot = await hre.deployments.get('Loot');
 
-  const MLoot = await hre.deployments.get('MLoot');
+  const MLoot = await hre.deployments.getOrNull('MLoot');
   const LootForEveryone = await hre.deployments.getOrNull('LootForEveryone');
 
   const LootXP = await hre.deployments.get('LootXP');

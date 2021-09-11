@@ -241,6 +241,13 @@ import { timeToText } from '$lib/utils';
         <p>This will allow you to recover from loss if needed</p>
       </div>
     </Modal>
+  {:else if $commitFlow.step === 'APPROVAL_TX'}
+    <Modal>
+      <div class="text-center">
+        <h2>Approval of transfer from YooLoot</h2>
+        <p>Please wait for approval tx to finish.</p>
+      </div>
+    </Modal>
   {:else}
   <!-- -->
   {/if}

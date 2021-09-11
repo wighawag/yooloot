@@ -105,7 +105,8 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
 
       if (!noNeedForTransfer && !isApproved) {
         this.setPartial({step: 'APPROVAL_TX'});
-        await contracts[LootContract].setApprovalForAll(contracts[YooLootContract].address, true, {nonce: currentNonce});
+        const tx = await contracts[LootContract].setApprovalForAll(contracts[YooLootContract].address, true, {nonce: currentNonce});
+        await tx.wait();
         currentNonce ++;
       }
 

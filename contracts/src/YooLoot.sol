@@ -8,7 +8,13 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract YooLoot {
     event LootDeckSubmitted(address indexed player, uint256 indexed lootId, bytes32 deckHash);
+    event LootDeckCanceled(address indexed player, uint256 indexed lootId);
+
     event LootDeckRevealed(uint256 indexed lootId, uint8[8] deck);
+
+    event WinnerWithdrawal(address indexed winner, address indexed playerPastOwner, uint256 indexed lootId);
+    event LootWithdrawn(address indexed playerPastOwner, uint256 indexed lootId, uint256 xpGaimed);
+
 
     event Cloned(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod, address newYooLoot, bool authorizedAsXPSource);
 
@@ -146,12 +152,38 @@ contract YooLoot {
     }
 
     function commitLootDeck(uint256 lootId, bytes32 deckHash) external {
-        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "JOINING_PERIOD_OVER");
+        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "INVALID HASH");
         _deckHashes[lootId] = deckHash;
         _deposits[lootId] = msg.sender;
         _paramaters.loot.transferFrom(msg.sender, address(this), lootId);
         emit LootDeckSubmitted(msg.sender, lootId, deckHash);
+    }
+
+    function changeDeck(uint256 oldLootId, uint256 lootId, bytes32 deckHash) external {
+        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
+        require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "INVALID HASH");
+        require(msg.sender == _deposits[oldLootId], "NOT_YOUR_LOOT");
+        _deckHashes[lootId] = deckHash;
+        if (oldLootId != lootId) {
+            _deckHashes[oldLootId] = 0x0000000000000000000000000000000000000000000000000000000000000000;
+            _deposits[oldLootId] = address(0);
+            _deposits[lootId] = msg.sender;
+            _paramaters.loot.safeTransferFrom(address(this), msg.sender, oldLootId);
+            _paramaters.loot.transferFrom(msg.sender, address(this), lootId);
+        }
+
+        emit LootDeckCanceled(msg.sender, oldLootId);
+        emit LootDeckSubmitted(msg.sender, lootId, deckHash);
+    }
+
+    function cancelDeck(uint256 oldLootId) external {
+        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
+        require(msg.sender == _deposits[oldLootId], "NOT_YOUR_LOOT");
+        _deckHashes[oldLootId] = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        _deposits[oldLootId] = address(0);
+        _paramaters.loot.safeTransferFrom(address(this), msg.sender, oldLootId);
+        emit LootDeckCanceled(msg.sender, oldLootId);
     }
 
     function revealLootDeck(
@@ -295,6 +327,13 @@ contract YooLoot {
         }
     }
 
+    function getTokenData(
+        uint256 id
+    ) external view returns (TokenData memory) {
+        uint8[8] memory baseDeck = [1,2,3,4,5,6,7,8];
+        return TokenData(id, _paramaters.loot.tokenURI(id), getDeckPower(id, baseDeck, address(_paramaters.loot) == _lootForEveryone));
+    }
+
     function claimVictoryLoot(uint256 lootToPick) external {
         require(_paramaters.winnerGetLoot, "NO_LOOT_TO_WIN");
 
@@ -303,7 +342,7 @@ contract YooLoot {
         (address winnerAddress, , ) = winner();
         require(winnerAddress == msg.sender, "NOT_WINNER");
         require(_deposits[lootToPick] != msg.sender, "ALREADY_OWNER");
-        _paramaters.loot.transferFrom(address(this), msg.sender, lootToPick);
+        _paramaters.loot.safeTransferFrom(address(this), msg.sender, lootToPick);
         _paramaters.startTime = 1;
     }
 
@@ -326,7 +365,7 @@ contract YooLoot {
             _deckHashes[lootId] == 0x0000000000000000000000000000000000000000000000000000000000000001,
             "DID_NOT_REVEAL"
         );
-        _paramaters.loot.transferFrom(address(this), msg.sender, lootId);
+        _paramaters.loot.safeTransferFrom(address(this), msg.sender, lootId);
         if (lootId == winnerLootId) {
             _lootXP.addXP(lootId, 10000 * winnerScore);
         } else {

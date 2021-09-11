@@ -4,6 +4,7 @@
   import gamestate from '$lib/stores/gamestate';
 import { url } from '$lib/utils/url';
 import Modal from '$lib/components/Modal.svelte';
+import { timeToText } from '$lib/utils';
 
 
   let deckString: string;
@@ -51,6 +52,9 @@ import Modal from '$lib/components/Modal.svelte';
     {:else if revealNotReady}
       The commit phase is not over yet, please go to <a href={url('commit/')} class="border-red-600 border-2 p-2 m-2">here</a> to play!
     {:else}
+
+      <p>{timeToText($gamestate.timeLeftBeforeNextPhase)} left</p>
+
       <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
       <label for="deck">deck</label><input id="deck" type="text" class="bg-black" bind:value={deckString}/>
       <label for="nonce">nonce</label><input id="lootId" type="text" class="bg-black" bind:value={nonceString}/>

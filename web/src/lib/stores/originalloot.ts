@@ -84,6 +84,22 @@ class NFTOfStore extends BaseStore<NFTs> {
     this.currentOwner = owner?.toLowerCase();
   }
 
+  async getTokenInfo(id: string): Promise<NFT | undefined> {
+    const contracts = chain.contracts || fallback.contracts;
+    if (contracts) {
+      const token: {tokenURI: string; id: BigNumber; deckPower: Deck} = await contracts[YooLootContract].getTokenData(id);
+      const nfts = await this._transform([{
+        tokenURI: token.tokenURI,
+        id: token.id.toString(),
+        deckPower: token.deckPower
+      }]);
+      return nfts[0];
+    } else {
+      console.log('NO CONTRACT')
+    }
+    return undefined;
+  }
+
   async query(
     address: string
   ): Promise<null | {tokenURI: string; id: string, deckPower: Deck}[]> {

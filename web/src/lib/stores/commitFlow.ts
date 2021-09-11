@@ -1,4 +1,5 @@
 import {wallet, flow, chain} from './wallet';
+import {nftsof} from '$lib/stores/originalloot'
 import {BaseStoreWithData} from '$lib/utils/stores';
 import {keccak256} from '@ethersproject/solidity';
 import type { Deck, NFT } from './originalloot';
@@ -9,6 +10,7 @@ type Data = {
   loot: NFT;
   deck?: Deck;
   nonce?: number;
+  replace?: string;
 };
 export type CommitFlow = {
   step:
@@ -42,11 +44,32 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
     this._reset();
   }
 
+  async chooseLootIdToUpdate(id: string): Promise<void> {
+    this.setPartial({step: 'CONNECTING'});
+    const loot = await nftsof(wallet.address).getTokenInfo(id);
+    flow.execute(async (contracts) => {
+      this.setPartial({
+        data: {loot, replace: id},
+        step: 'CHOOSE_DECK',
+      });
+    });
+  }
+
+  async chooseLootToReplace(id: string, loot: NFT): Promise<void> {
+    this.setPartial({step: 'CONNECTING'});
+    flow.execute(async (contracts) => {
+      this.setPartial({
+        data: {loot, replace: id},
+        step: 'CHOOSE_DECK',
+      });
+    });
+  }
+
   async chooseLoot(loot: NFT): Promise<void> {
     this.setPartial({step: 'CONNECTING'});
     flow.execute(async (contracts) => {
       this.setPartial({
-        data: {loot},
+        data: {loot, replace: undefined},
         step: 'CHOOSE_DECK',
       });
     });
@@ -74,10 +97,13 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
       }
       const tokenID = currentFlow.data.loot.id;
 
+      const noNeedForTransfer = currentFlow.data.replace === tokenID;
+      // TODO check if replace is actually there
+
       const isApproved = await contracts.Loot.isApprovedForAll(wallet.address, contracts[YooLootContract].address);
       let currentNonce = await wallet.provider.getTransactionCount(wallet.address);
 
-      if (!isApproved) {
+      if (!noNeedForTransfer && !isApproved) {
         this.setPartial({step: 'APPROVAL_TX'});
         await contracts[LootContract].setApprovalForAll(contracts[YooLootContract].address, true, {nonce: currentNonce});
         currentNonce ++;
@@ -95,7 +121,12 @@ class PurchaseFlowStore extends BaseStoreWithData<CommitFlow, Data> {
       );
 
       this.setPartial({step: 'WAITING_TX'});
-      await contracts[YooLootContract].commitLootDeck(tokenID, deckHash, {nonce: currentNonce});
+      if (currentFlow.data.replace) {
+        await contracts[YooLootContract].changeDeck(currentFlow.data.replace, tokenID, deckHash, {nonce: currentNonce});
+      } else {
+        await contracts[YooLootContract].commitLootDeck(tokenID, deckHash, {nonce: currentNonce});
+      }
+
 
       this.setData({nonce: currentNonce});
 

@@ -102,6 +102,11 @@ const setup = deployments.createFixture(async () => {
 });
 
 describe('YooLoot', function () {
+  it('getParams', async function () {
+    const {users, YooLoot} = await setup();
+    await YooLoot.getParams();
+  });
+
   it('commitLootDeck', async function () {
     const {users, YooLoot} = await setup();
     const tokenId = 1;

@@ -10,15 +10,32 @@
   import { url } from '$lib/utils/url';
   import gameState from '$lib/stores/gamestate';
   import { LootContract } from '$lib/config';
-import { timeToText } from '$lib/utils';
+  import { timeToText } from '$lib/utils';
+
+
+  let lootId;
 
   $: nfts = nftsof($wallet.address);
 
-  function pick(nft: NFT) {
+
+  async function update() {
+    if (!lootId || lootId === "") {
+      throw new Error('invalid lootId')
+    }
     if (commitOver) {
       return;
     }
-    commitFlow.chooseLoot(nft);
+    commitFlow.chooseLootIdToUpdate(lootId);
+  }
+
+  function pick(nft: NFT) {
+    if (!lootId || lootId === "") {
+      throw new Error('invalid lootId')
+    }
+    if (commitOver) {
+      return;
+    }
+    commitFlow.chooseLootToReplace(lootId, nft);
   }
 
   let deckString;
@@ -60,8 +77,13 @@ import { timeToText } from '$lib/utils';
 
     {:else if $gameState.timeLeftBeforeNextPhase}
       <p>{timeToText($gameState.timeLeftBeforeNextPhase)} left</p>
-      <p class="text-green-400">Note: If you want to update the deck order of one your sbmitted deck, please go <a class="underline" href={url('update/')}>here</a></p>
+      <p class="text-green-400">Note: This is the page to update a deck already published. If you want to submit a completely new deck go <a class="underline" href={url('commit/')}>here</a></p>
     {/if}
+
+
+    <label for="lootId">LootId to replace</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
+
+    <button class="my-4 p-1 border-2 border-red-600" on:click={update}>Just Change Deck Order</button>
 
 
   </section>
@@ -94,7 +116,7 @@ import { timeToText } from '$lib/utils';
       <div
         class="w-full h-full mx-auto flex flex-col items-center justify-center text-black dark:text-white ">
         <p class="p-6">
-            Here are your Loot to battle with, pick one
+            Or pick a new Loot to swap with
         </p>
       </div>
       {/if}

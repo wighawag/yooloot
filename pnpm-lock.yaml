@@ -134,9 +134,9 @@ importers:
       '@ethersproject/providers': ^5.4.5
       '@ethersproject/solidity': ^5.4.0
       '@ethersproject/wallet': ^5.4.0
-      '@sveltejs/adapter-node': next
+      '@sveltejs/adapter-node': 1.0.0-next.45
       '@sveltejs/adapter-static': ^1.0.0-next.9
-      '@sveltejs/kit': next
+      '@sveltejs/kit': 1.0.0-next.164
       '@tailwindcss/forms': ^0.3.3
       '@typescript-eslint/eslint-plugin': ^4.30.0
       '@typescript-eslint/parser': ^4.30.0
@@ -159,6 +159,7 @@ importers:
       prepare-for-web: ^0.1.6
       prettier: ~2.3.2
       prettier-plugin-svelte: ^2.4.0
+      pretty-ms: https://github.com/wighawag/pretty-ms#320ba46c464052ebbe605e48ad05df9e9801e956
       svelte: ^3.42.4
       svelte-local-storage-store: ^0.2.4
       svelte-preprocess: ^4.8.0
@@ -186,6 +187,7 @@ importers:
       '@urql/devtools': 2.0.3_@urql+core@2.3.1+graphql@15.5.2
       graphql: 15.5.2
       named-logs: 0.1.0
+      pretty-ms: github.com/wighawag/pretty-ms/320ba46c464052ebbe605e48ad05df9e9801e956
       svelte-local-storage-store: 0.2.4_svelte@3.42.4
       web3w: 0.3.1_30489dd9f56dae6b78a8b20ca8e88cc5
       web3w-torus-loader: 0.3.1
@@ -1376,17 +1378,17 @@ packages:
     peerDependencies:
       svelte: ^3.39.0
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.22_svelte@3.42.4+vite@2.5.3
+      '@sveltejs/vite-plugin-svelte': 1.0.0-next.22_svelte@3.42.4+vite@2.5.6
       cheap-watch: 1.0.4
       sade: 1.7.4
       svelte: 3.42.4
-      vite: 2.5.3
+      vite: 2.5.6
     transitivePeerDependencies:
       - diff-match-patch
       - supports-color
     dev: true
 
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.22_svelte@3.42.4+vite@2.5.3:
+  /@sveltejs/vite-plugin-svelte/1.0.0-next.22_svelte@3.42.4+vite@2.5.6:
     resolution: {integrity: sha512-B1O/GMIxpE4iJ3/FBUJ3oYGKHhJ99G9uFARsb8kVeReLDPhtZGXTM+7brLDefJuedbKkRkGEEkbGOVuEuEBo3g==}
     engines: {node: ^12.20 || ^14.13.1 || >= 16}
     peerDependencies:
@@ -1404,7 +1406,7 @@ packages:
       require-relative: 0.8.7
       svelte: 3.42.4
       svelte-hmr: 0.14.7_svelte@3.42.4
-      vite: 2.5.3
+      vite: 2.5.6
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2340,7 +2342,7 @@ packages:
   /axios/0.21.1:
     resolution: {integrity: sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==}
     dependencies:
-      follow-redirects: 1.14.3
+      follow-redirects: 1.14.3_debug@4.3.2
     transitivePeerDependencies:
       - debug
     dev: true
@@ -5004,16 +5006,6 @@ packages:
     resolution: {integrity: sha1-x7vxJN7ELJ0ZHPuUfQqXeN2YbAw=}
     dependencies:
       imul: 1.0.1
-    dev: true
-
-  /follow-redirects/1.14.3:
-    resolution: {integrity: sha512-3MkHxknWMUtb23apkgz/83fDoe+y+qr0TdgacGIA7bew+QLBo3vdgEN2xEsuXNivpFy4CyDhBBZnNZOtalmenw==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
     dev: true
 
   /follow-redirects/1.14.3_debug@4.3.2:
@@ -11685,6 +11677,19 @@ packages:
       fsevents: 2.3.2
     dev: true
 
+  /vite/2.5.6:
+    resolution: {integrity: sha512-P++qzXuOPhTql8iDamsatlJfD7/yGi8NCNwzyqkB2p0jrNJC567WEdXiKn3hQ+ZV8amQmB2dTH6svo3Z2tJ6MQ==}
+    engines: {node: '>=12.2.0'}
+    hasBin: true
+    dependencies:
+      esbuild: 0.12.25
+      postcss: 8.3.6
+      resolve: 1.20.0
+      rollup: 2.56.3
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
+
   /wait-on/6.0.0:
     resolution: {integrity: sha512-tnUJr9p5r+bEYXPUdRseolmz5XqJTTj98JgOsfBn7Oz2dxfE2g3zw1jE+Mo8lopM3j3et/Mq1yW7kKX6qw7RVw==}
     engines: {node: '>=10.0.0'}
@@ -12365,3 +12370,19 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  github.com/wighawag/parse-ms/0b21d8f5d7970c049b7fca46bfff78e3113542bc:
+    resolution: {tarball: https://codeload.github.com/wighawag/parse-ms/tar.gz/0b21d8f5d7970c049b7fca46bfff78e3113542bc}
+    name: parse-ms
+    version: 2.1.0
+    engines: {node: '>=6'}
+    dev: false
+
+  github.com/wighawag/pretty-ms/320ba46c464052ebbe605e48ad05df9e9801e956:
+    resolution: {tarball: https://codeload.github.com/wighawag/pretty-ms/tar.gz/320ba46c464052ebbe605e48ad05df9e9801e956}
+    name: pretty-ms
+    version: 7.0.1
+    engines: {node: '>=10'}
+    dependencies:
+      parse-ms: github.com/wighawag/parse-ms/0b21d8f5d7970c049b7fca46bfff78e3113542bc
+    dev: false

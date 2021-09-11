@@ -1,7 +1,7 @@
 import {wallet, flow, chain} from './wallet';
 import {BaseStore} from '$lib/utils/stores';
 import type { ChainStore, WalletStore } from 'web3w';
-import { now } from './time';
+import { now, time } from './time';
 import { YooLootContract } from '$lib/config';
 
 const week = 7 * 24 * 60 * 60;
@@ -26,6 +26,7 @@ class GameStateStore extends BaseStore<GameState> {
     });
     wallet.subscribe(this.onWallet.bind(this));
     chain.subscribe(this.onChain.bind(this));
+    time.subscribe(this.everySecond.bind(this));
   }
 
   onWallet($wallet: WalletStore) {
@@ -44,6 +45,25 @@ class GameStateStore extends BaseStore<GameState> {
     }
   }
 
+  everySecond() {
+    const currentTime = now();
+    if (this.$store.winnerPeriodEnd) {
+      if (currentTime > this.$store.winnerPeriodEnd) {
+      } else if (currentTime > this.$store.revealPeriodEnd) {
+        if (this.$store.winner === "0x0000000000000000000000000000000000000000") {
+          this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'});
+        } else {
+          this.setPartial({timeLeftBeforeNextPhase: this.$store.winnerPeriodEnd - currentTime, phase: 'WINNER'});
+        }
+      } else if (currentTime > this.$store.commitPeriodEnd) {
+        this.setPartial({timeLeftBeforeNextPhase: this.$store.revealPeriodEnd - currentTime})
+      } else {
+        this.setPartial({timeLeftBeforeNextPhase: this.$store.commitPeriodEnd - currentTime})
+      }
+    }
+
+  }
+
   start() {
     if (this.timeout) {
       clearTimeout(this.timeout)
@@ -52,44 +72,52 @@ class GameStateStore extends BaseStore<GameState> {
   }
 
   async update() {
-    if (!this.$store.startTime && wallet.provider) {
 
-      const params = await wallet.contracts[YooLootContract].getParams();
-      const {startTime, commit3HPeriod, reveal3HPeriod, winner3HPeriod} = params;
-      const commitPeriodEnd = startTime + commit3HPeriod * 3 * 3600;
-      const revealPeriodEnd = commitPeriodEnd + reveal3HPeriod * 3 * 3600;
-      const winnerPeriodEnd = reveal3HPeriod + winner3HPeriod * 3 * 3600;
-      this.setPartial({startTime, commitPeriodEnd, revealPeriodEnd, winnerPeriodEnd});
-    }
+    if (wallet.provider) {
+      if (!this.$store.startTime) {
 
-    // if (!this.$store.winner) {
-    //   const winnerInfo = await wallet.contracts[YooLootContract].winner();
-    //   this.setPartial({winner: winnerInfo.winnerAddress});
-    // }
-
-    const currentTime = now();
-    // const timePassed = currentTime - this.$store.startTime;
-    if (currentTime > this.$store.winnerPeriodEnd) {
-      this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'})
-      if (!this.$store.winner) {
-        const winnerInfo = await wallet.contracts[YooLootContract].winner();
-        this.setPartial({winner: winnerInfo.winnerAddress});
+        const params = await wallet.contracts[YooLootContract].callStatic.getParams();
+        const {startTime, commit3HPeriod, reveal3HPeriod, winner3HPeriod} = params;
+        // console.log({startTime, commit3HPeriod, reveal3HPeriod, winner3HPeriod})
+        const commitPeriodEnd = startTime + commit3HPeriod * 3 * 3600;
+        const revealPeriodEnd = commitPeriodEnd + reveal3HPeriod * 3 * 3600;
+        const winnerPeriodEnd = revealPeriodEnd + winner3HPeriod * 3 * 3600;
+        // console.log({startTime, commitPeriodEnd, revealPeriodEnd, winnerPeriodEnd})
+        this.setPartial({startTime, commitPeriodEnd, revealPeriodEnd, winnerPeriodEnd});
       }
-    } else if (currentTime > this.$store.revealPeriodEnd) {
 
-      if (!this.$store.winner) {
-        const winnerInfo = await wallet.contracts[YooLootContract].winner();
-        this.setPartial({winner: winnerInfo.winnerAddress});
-      }
-      if (this.$store.winner === "0x0000000000000000000000000000000000000000") {
-        this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'});
+      // if (!this.$store.winner) {
+      //   const winnerInfo = await wallet.contracts[YooLootContract].winner();
+      //   this.setPartial({winner: winnerInfo.winnerAddress});
+      // }
+
+      const currentTime = now();
+      // const timePassed = currentTime - this.$store.startTime;
+      if (currentTime > this.$store.winnerPeriodEnd) {
+        console.log('winner period ended');
+        this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'})
+        if (!this.$store.winner) {
+          const winnerInfo = await wallet.contracts[YooLootContract].winner();
+          this.setPartial({winner: winnerInfo.winnerAddress});
+        }
+      } else if (currentTime > this.$store.revealPeriodEnd) {
+        console.log('reveal period ended');
+        if (!this.$store.winner) {
+          const winnerInfo = await wallet.contracts[YooLootContract].winner();
+          this.setPartial({winner: winnerInfo.winnerAddress});
+        }
+        if (this.$store.winner === "0x0000000000000000000000000000000000000000") {
+          this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'});
+        } else {
+          this.setPartial({timeLeftBeforeNextPhase: this.$store.winnerPeriodEnd - currentTime, phase: 'WINNER'});
+        }
+      } else if (currentTime > this.$store.commitPeriodEnd) {
+        console.log('commit period ended');
+        this.setPartial({timeLeftBeforeNextPhase: this.$store.revealPeriodEnd - currentTime, phase: 'REVEAL'})
       } else {
-        this.setPartial({timeLeftBeforeNextPhase: this.$store.winnerPeriodEnd - currentTime, phase: 'WINNER'});
+        console.log('commit...');
+        this.setPartial({timeLeftBeforeNextPhase: this.$store.commitPeriodEnd - currentTime, phase: 'COMMIT'})
       }
-    } else if (currentTime > this.$store.commitPeriodEnd) {
-      this.setPartial({timeLeftBeforeNextPhase: this.$store.revealPeriodEnd - currentTime, phase: 'REVEAL'})
-    } else {
-      this.setPartial({timeLeftBeforeNextPhase: this.$store.commitPeriodEnd - currentTime, phase: 'COMMIT'})
     }
 
 

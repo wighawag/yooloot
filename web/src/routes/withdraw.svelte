@@ -49,7 +49,11 @@ import { YooLootContract } from '$lib/config';
     {/if}
   {:else}
 
+      {#if $gamestate.winner === '0x0000000000000000000000000000000000000000'}
+      <p class="mt-5">Nobody won, withdraw your loot(s)</p>
+      {:else}
       <p class="mt-5">You can now pick your loot (Assuming the winner did not chose it)</p>
+      {/if}
 
       <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
 

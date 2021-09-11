@@ -22,7 +22,7 @@ import { timeToText } from '$lib/utils';
       if (isNaN(elem)) {
         throw new Error(`invalid deck: not all element are numbers`);
       }
-      checks[elem] ++;
+      checks[elem-1] ++;
     }
     for (const check of checks) {
       if (check !== 1) {
@@ -53,7 +53,9 @@ import { timeToText } from '$lib/utils';
       The commit phase is not over yet, please go to <a href={url('commit/')} class="border-red-600 border-2 p-2 m-2">here</a> to play!
     {:else}
 
+      {#if $gamestate.timeLeftBeforeNextPhase}
       <p>{timeToText($gamestate.timeLeftBeforeNextPhase)} left</p>
+      {/if}
 
       <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
       <label for="deck">deck</label><input id="deck" type="text" class="bg-black" bind:value={deckString}/>

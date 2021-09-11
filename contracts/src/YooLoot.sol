@@ -13,7 +13,7 @@ contract YooLoot {
     event LootDeckRevealed(uint256 indexed lootId, uint8[8] deck);
 
     event WinnerWithdrawal(address indexed winner, address indexed playerPastOwner, uint256 indexed lootId);
-    event LootWithdrawn(address indexed playerPastOwner, uint256 indexed lootId, uint256 xpGaimed);
+    event LootWithdrawn(address indexed player, uint256 indexed lootId, uint256 xpGaimed);
 
 
     event Cloned(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod, address newYooLoot, bool authorizedAsXPSource);
@@ -341,9 +341,12 @@ contract YooLoot {
 
         (address winnerAddress, , ) = winner();
         require(winnerAddress == msg.sender, "NOT_WINNER");
-        require(_deposits[lootToPick] != msg.sender, "ALREADY_OWNER");
+        address takenFrom = _deposits[lootToPick];
+        require(takenFrom != msg.sender, "ALREADY_OWNER");
         _paramaters.loot.safeTransferFrom(address(this), msg.sender, lootToPick);
         _paramaters.startTime = 1;
+
+        emit WinnerWithdrawal(msg.sender, takenFrom, lootToPick);
     }
 
     function claimVictoryERC20(IERC20 token) external {
@@ -366,12 +369,19 @@ contract YooLoot {
             "DID_NOT_REVEAL"
         );
         _paramaters.loot.safeTransferFrom(address(this), msg.sender, lootId);
+        uint256 xpGained;
         if (lootId == winnerLootId) {
-            _lootXP.addXP(lootId, 10000 * winnerScore);
+            xpGained = 10000 * winnerScore;
         } else {
             uint256 score = individualScore(lootId);
-            _lootXP.addXP(lootId, 100 + 1000 * score);
+            xpGained = 100 + 1000 * score;
         }
+
+        if (!_lootXP.addXP(lootId, xpGained)) {
+            xpGained = 0;
+        }
+
+        emit LootWithdrawn(msg.sender, lootId, xpGained);
     }
 
     function getDeckPower(uint256 lootId, uint8[8] memory deckWithStartIndex1, bool lootForEveryone) public pure returns (uint8[8] memory deckPower) {

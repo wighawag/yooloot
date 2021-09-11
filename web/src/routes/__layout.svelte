@@ -12,6 +12,7 @@
 
   import {appDescription, url as appUrl} from '../../application.json';
   import { base } from '$app/paths';
+import { LootContract } from '$lib/config';
 
   const title = 'yooloot';
   const description = appDescription;
@@ -63,7 +64,7 @@
       alt="YooLoot"
       style="height:34px;"
       height="34px"
-    />(For Everyone)</a>
+    />{LootContract === 'LootForEveryone' ? "(For Everyone)" : (LootContract === 'MLoot' ? '(For MLoot)' : '')}</a>
 
 
 <!-- <button class="text-red-600 underline" on:click={increaseTime}>increase time by 1 week</button> -->

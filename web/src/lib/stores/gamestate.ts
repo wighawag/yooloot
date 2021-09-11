@@ -9,6 +9,9 @@ const week = 7 * 24 * 60 * 60;
 export type GameState = {
   phase: 'IDLE' | 'LOADING' | 'COMMIT' | 'REVEAL' | 'WINNER' | 'WITHDRAW';
   startTime?: number;
+  commitPeriodEnd?: number;
+  revealPeriodEnd?: number;
+  winnerPeriodEnd?: number;
   timeLeftBeforeNextPhase?: number;
   winner?: string;
 };
@@ -52,28 +55,41 @@ class GameStateStore extends BaseStore<GameState> {
     if (!this.$store.startTime && wallet.provider) {
 
       const params = await wallet.contracts[YooLootContract].getParams();
-      const {startTime} = params;
-      this.setPartial({startTime});
+      const {startTime, commit3HPeriod, reveal3HPeriod, winner3HPeriod} = params;
+      const commitPeriodEnd = startTime + commit3HPeriod * 3 * 3600;
+      const revealPeriodEnd = commitPeriodEnd + reveal3HPeriod * 3 * 3600;
+      const winnerPeriodEnd = reveal3HPeriod + winner3HPeriod * 3 * 3600;
+      this.setPartial({startTime, commitPeriodEnd, revealPeriodEnd, winnerPeriodEnd});
     }
 
+    // if (!this.$store.winner) {
+    //   const winnerInfo = await wallet.contracts[YooLootContract].winner();
+    //   this.setPartial({winner: winnerInfo.winnerAddress});
+    // }
+
     const currentTime = now();
-    const timePassed = currentTime - this.$store.startTime;
-    if (timePassed > 3 * week) {
+    // const timePassed = currentTime - this.$store.startTime;
+    if (currentTime > this.$store.winnerPeriodEnd) {
       this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'})
       if (!this.$store.winner) {
         const winnerInfo = await wallet.contracts[YooLootContract].winner();
         this.setPartial({winner: winnerInfo.winnerAddress});
       }
-    } else if (timePassed > 2 * week) {
-      this.setPartial({timeLeftBeforeNextPhase: 3 * week - timePassed, phase: 'WINNER'});
+    } else if (currentTime > this.$store.revealPeriodEnd) {
+
       if (!this.$store.winner) {
         const winnerInfo = await wallet.contracts[YooLootContract].winner();
         this.setPartial({winner: winnerInfo.winnerAddress});
       }
-    } else if (timePassed > 1 * week) {
-      this.setPartial({timeLeftBeforeNextPhase: 2 * week - timePassed, phase: 'REVEAL'})
+      if (this.$store.winner === "0x0000000000000000000000000000000000000000") {
+        this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'});
+      } else {
+        this.setPartial({timeLeftBeforeNextPhase: this.$store.winnerPeriodEnd - currentTime, phase: 'WINNER'});
+      }
+    } else if (currentTime > this.$store.commitPeriodEnd) {
+      this.setPartial({timeLeftBeforeNextPhase: this.$store.revealPeriodEnd - currentTime, phase: 'REVEAL'})
     } else {
-      this.setPartial({timeLeftBeforeNextPhase: 1 * week - timePassed, phase: 'COMMIT'})
+      this.setPartial({timeLeftBeforeNextPhase: this.$store.commitPeriodEnd - currentTime, phase: 'COMMIT'})
     }
 
 

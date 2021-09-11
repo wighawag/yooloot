@@ -20,6 +20,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }
   }
 
+  function daysIn3HPeriods(numDays: number) {
+    return numDays * 8;
+  }
+
+  const commit3HPeriod = daysIn3HPeriods(7);
+  const reveal3HPeriod = daysIn3HPeriods(3);
+  const winner3HPeriod = daysIn3HPeriods(1);
+
   const YooLoot = await deploy('YooLoot', {
     from: deployer,
     args: [
@@ -31,7 +39,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       ],
       Loot.address,
       true,
-      7 * 24 * 60 * 60,
+      commit3HPeriod,
+      reveal3HPeriod,
+      winner3HPeriod,
     ],
     proxy:
       hre.network.name !== 'mainnet'
@@ -39,7 +49,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             execute: {
               init: {
                 methodName: 'freeFormInit',
-                args: [Loot.address, true, 7 * 24 * 60 * 60],
+                args: [
+                  Loot.address,
+                  true,
+                  commit3HPeriod,
+                  reveal3HPeriod,
+                  winner3HPeriod,
+                ],
               },
             },
           }

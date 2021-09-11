@@ -10,12 +10,14 @@ contract YooLoot {
     event LootDeckSubmitted(address indexed player, uint256 indexed lootId, bytes32 deckHash);
     event LootDeckRevealed(uint256 indexed lootId, uint8[8] deck);
 
-    event Cloned(address loot, bool winnerGetLoot, uint24 periodLength, address newYooLoot, bool authorizedAsXPSource);
+    event Cloned(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod, address newYooLoot, bool authorizedAsXPSource);
 
     struct Parameters {
         ILoot loot;
         uint40 startTime;
-        uint24 periodLength;
+        uint8 commit3HPeriod;
+        uint8 reveal3HPeriod;
+        uint8 winner3HPeriod;
         bool winnerGetLoot;
     }
 
@@ -42,67 +44,86 @@ contract YooLoot {
         address[3] memory authorizedLoots,
         ILoot loot,
         bool winnerGetLoot,
-        uint24 periodLength
+        uint8 commit3HPeriod,
+        uint8 reveal3HPeriod,
+        uint8 winner3HPeriod
     ) {
         _lootXP = lootXP;
         _originalLoot = authorizedLoots[0];
         _mloot = authorizedLoots[1];
         _lootForEveryone = authorizedLoots[2];
-        _init(loot, winnerGetLoot, periodLength);
+        _init(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
     }
 
     function _init(
         ILoot loot,
         bool winnerGetLoot,
-        uint24 periodLength
+        uint8 commit3HPeriod,
+        uint8 reveal3HPeriod,
+        uint8 winner3HPeriod
     ) internal {
         require(_paramaters.startTime == 0, "ALREADY_INITIALISED");
-        require(periodLength > 6 hours, "PERIOD_TOO_SHORT");
-        require(periodLength <= 31 days, "PERIOD_TOO_LONG");
+        require(commit3HPeriod >= 2, "COMMIT_PERIOD_TOO_SHORT"); // 6 hours
+        require(commit3HPeriod >= 8 ? reveal3HPeriod >= 8: reveal3HPeriod >= commit3HPeriod, "REVEAL_PERIOD_TOO_SHORT");
+        require(reveal3HPeriod <= 24, "REVEAL_PERIOD_TOO_LONG"); // 3 days
+        require(commit3HPeriod >= 8 ? winner3HPeriod >= 8: winner3HPeriod >= commit3HPeriod, "WINNER_PERIOD_TOO_SHORT");
+        require(winner3HPeriod <= 24, "WINNER_PERIOD_TOO_LONG"); // 3 days
         _paramaters.loot = loot;
         _paramaters.winnerGetLoot = winnerGetLoot;
         _paramaters.startTime = uint40(block.timestamp);
-        _paramaters.periodLength = periodLength;
+        _paramaters.commit3HPeriod = commit3HPeriod;
+        _paramaters.reveal3HPeriod = reveal3HPeriod;
+        _paramaters.winner3HPeriod = winner3HPeriod;
     }
 
     function freeFormInit(
         ILoot loot,
         bool winnerGetLoot,
-        uint24 periodLength
+        uint8 commit3HPeriod,
+        uint8 reveal3HPeriod,
+        uint8 winner3HPeriod
     ) public {
-        _init(loot, winnerGetLoot, periodLength);
+        _init(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
     }
 
     function init(
         ILoot loot,
         bool winnerGetLoot,
-        uint24 periodLength
+        uint8 commit3HPeriod,
+        uint8 reveal3HPeriod,
+        uint8 winner3HPeriod
     ) public {
         require(address(loot) != address(0), "INVALID_ZERO_LOOT");
         require(address(loot) == _originalLoot || address(loot) == _mloot || address(loot) == _lootForEveryone, "INVALID LOOT");
-        _init(loot, winnerGetLoot, periodLength);
+        _init(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
     }
 
     function clone(
         ILoot loot,
         bool winnerGetLoot,
-        uint24 periodLength
+        uint8 commit3HPeriod,
+        uint8 reveal3HPeriod,
+        uint8 winner3HPeriod
     ) external returns (address) {
-        return _clone(loot, winnerGetLoot, periodLength, true);
+        return _clone(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod, true);
     }
 
     function freeFormClone(
         ILoot loot,
         bool winnerGetLoot,
-        uint24 periodLength
+        uint8 commit3HPeriod,
+        uint8 reveal3HPeriod,
+        uint8 winner3HPeriod
     ) external returns (address) {
-        return _clone(loot, winnerGetLoot, periodLength, false);
+        return _clone(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod, false);
     }
 
     function _clone(
         ILoot loot,
         bool winnerGetLoot,
-        uint24 periodLength,
+        uint8 commit3HPeriod,
+        uint8 reveal3HPeriod,
+        uint8 winner3HPeriod,
         bool generateXP
     ) internal returns(address) {
         address implementation;
@@ -115,17 +136,17 @@ contract YooLoot {
         }
         address yooloot = Clones.clone(implementation);
         if (generateXP) {
-            YooLoot(yooloot).init(loot, winnerGetLoot, periodLength);
+            YooLoot(yooloot).init(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
             _lootXP.setSource(yooloot, true);
         } else {
-            YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, periodLength);
+            YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
         }
-        emit Cloned(address(loot), winnerGetLoot, periodLength, yooloot, generateXP);
+        emit Cloned(address(loot), winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod, yooloot, generateXP);
         return yooloot;
     }
 
     function commitLootDeck(uint256 lootId, bytes32 deckHash) external {
-        require(block.timestamp - _paramaters.startTime < 1 * _paramaters.periodLength, "JOINING_PERIOD_OVER");
+        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "JOINING_PERIOD_OVER");
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "INVALID HASH");
         _deckHashes[lootId] = deckHash;
         _deposits[lootId] = msg.sender;
@@ -138,8 +159,13 @@ contract YooLoot {
         uint8[8] calldata deckWithStartIndex1,
         bytes32 secret
     ) external {
-        require(block.timestamp - _paramaters.startTime > 1 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_STARTED");
-        require(block.timestamp - _paramaters.startTime < 2 * _paramaters.periodLength, "REVEAL_PERIOD_OVER");
+        uint256 commitPeriod = (3 hours * uint256(_paramaters.commit3HPeriod));
+        uint256 timePassed = block.timestamp - _paramaters.startTime;
+
+        require(timePassed > commitPeriod, "REVEAL_PERIOD_NOT_STARTED");
+
+        require(timePassed < commitPeriod + 3 hours * uint256(_paramaters.reveal3HPeriod), "REVEAL_PERIOD_OVER");
+
         bytes32 deckHash = _deckHashes[lootId];
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "ALREADY_REVEALED");
         require(keccak256(abi.encodePacked(secret, lootId, deckWithStartIndex1)) == deckHash, "INVALID_SECRET'");
@@ -172,7 +198,8 @@ contract YooLoot {
             uint256 winnerScore
         )
     {
-        require(block.timestamp - _paramaters.startTime > 2 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_OVER");
+        require((block.timestamp - _paramaters.startTime) > (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod))), "REVEAL_PERIOD_NOT_OVER");
+
         uint256[8] memory winnerLootPerRound;
         for (uint8 round = 0; round < 8; round++) {
             for (uint8 power = 126; power > 0; power--) {
@@ -223,7 +250,9 @@ contract YooLoot {
             lootId > 0 && lootId != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,
             "INVALID_LOOT"
         );
-        require(block.timestamp - _paramaters.startTime > 2 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_OVER");
+
+        require((block.timestamp - _paramaters.startTime) > (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod))), "REVEAL_PERIOD_NOT_OVER");
+
         uint256 extra = 0;
         for (uint8 round = 0; round < 8; round++) {
             bool anyone = false;
@@ -268,7 +297,9 @@ contract YooLoot {
 
     function claimVictoryLoot(uint256 lootToPick) external {
         require(_paramaters.winnerGetLoot, "NO_LOOT_TO_WIN");
-        require(block.timestamp - _paramaters.startTime < 3 * _paramaters.periodLength, "VICTORY_PERIOD_OVER");
+
+        require((block.timestamp - _paramaters.startTime) < (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod) + uint256(_paramaters.winner3HPeriod))), "VICTORY_PERIOD_OVER");
+
         (address winnerAddress, , ) = winner();
         require(winnerAddress == msg.sender, "NOT_WINNER");
         require(_deposits[lootToPick] != msg.sender, "ALREADY_OWNER");
@@ -284,17 +315,18 @@ contract YooLoot {
     }
 
     function withdrawAndGetXP(uint256 lootId) external {
-        require(
-            _paramaters.winnerGetLoot && block.timestamp - _paramaters.startTime > 3 * _paramaters.periodLength,
-            "VICTORY_WITHDRAWL_NOT_OVER"
-        );
+        (address winnerAddress, uint256 winnerLootId, uint256 winnerScore) = winner();
+
+        if (!((block.timestamp - _paramaters.startTime) > (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod) + uint256(_paramaters.winner3HPeriod))))) {
+            require(winnerAddress == address(0), "VICTORY_PERIOD_NOT_OVER");
+        }
+
         require(_deposits[lootId] == msg.sender, "NOT_OWNER");
         require(
             _deckHashes[lootId] == 0x0000000000000000000000000000000000000000000000000000000000000001,
             "DID_NOT_REVEAL"
         );
         _paramaters.loot.transferFrom(address(this), msg.sender, lootId);
-        (, uint256 winnerLootId, uint256 winnerScore) = winner();
         if (lootId == winnerLootId) {
             _lootXP.addXP(lootId, 10000 * winnerScore);
         } else {

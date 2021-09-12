@@ -45,6 +45,8 @@ contract YooLoot {
 
     ILootXP private immutable _lootXP;
 
+    uint256 private constant COUNTER_FLAG = 0x8000000000000000000000000000000000000000000000000000000000000000;
+
     constructor(
         ILootXP lootXP,
         address[3] memory authorizedLoots,
@@ -200,6 +202,8 @@ contract YooLoot {
 
         bytes32 deckHash = deckHashes[lootId];
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "ALREADY_REVEALED");
+
+        // COUNTER_FLAG
         require(keccak256(abi.encodePacked(secret, lootId, deckWithStartIndex1)) == deckHash, "INVALID_SECRET'");
         deckHashes[lootId] = 0x0000000000000000000000000000000000000000000000000000000000000001;
         uint8[8] memory indicesUsed;
@@ -210,8 +214,10 @@ contract YooLoot {
             uint256 current = rounds[i][power];
             if (current == 0) {
                 rounds[i][power] = lootId;
-            } else if (current != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
-                rounds[i][power] = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+            } else if ((current & COUNTER_FLAG) == COUNTER_FLAG) {
+                current = COUNTER_FLAG | uint248(current);
+            } else {
+                current = COUNTER_FLAG | 1;
             }
         }
         for (uint8 i = 0; i < 8; i++) {
@@ -236,7 +242,7 @@ contract YooLoot {
         for (uint8 round = 0; round < 8; round++) {
             for (uint8 power = 126; power > 0; power--) {
                 uint256 lootId = rounds[round][power - 1];
-                if (lootId > 0 && lootId != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
+                if (lootId > 0 && lootId < COUNTER_FLAG) {
                     winnerLootPerRound[round] = lootId;
                     winnerAddress = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
                     break;

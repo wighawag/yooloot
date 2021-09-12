@@ -15,8 +15,9 @@ contract YooLoot {
     event WinnerWithdrawal(address indexed winner, address indexed playerPastOwner, uint256 indexed lootId);
     event LootWithdrawn(address indexed player, uint256 indexed lootId, uint256 xpGaimed);
 
+    event NewGame(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod);
 
-    event Cloned(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod, address newYooLoot, bool authorizedAsXPSource);
+    event Cloned(address newYooLoot, bool authorizedAsXPSource);
 
     struct Parameters {
         ILoot loot;
@@ -80,6 +81,8 @@ contract YooLoot {
         parameters.commit3HPeriod = commit3HPeriod;
         parameters.reveal3HPeriod = reveal3HPeriod;
         parameters.winner3HPeriod = winner3HPeriod;
+
+        emit NewGame(address(loot), winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
     }
 
     function freeFormInit(
@@ -147,7 +150,7 @@ contract YooLoot {
         } else {
             YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
         }
-        emit Cloned(address(loot), winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod, yooloot, generateXP);
+        emit Cloned(yooloot, generateXP);
         return yooloot;
     }
 

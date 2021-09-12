@@ -1,5 +1,24 @@
-type MessageEntry @entity {
+type YooLootGame @entity {
+  id: ID! # address
+  loots: [LootSubmitted!]! @derivedFrom(field: "game")
+  lootContract: Bytes!
+  winnerGetLoot: Boolean!
+  startTime: Int!
+  commit3HPeriod: Int!
+  reveal3HPeriod: Int!
+  winner3HPeriod: Int!
+  currentWinner: Player
+}
+
+type Player @entity {
+  id: ID! # address as hex lower case
+  loots: [LootSubmitted!]! @derivedFrom(field: "player")
+}
+
+type LootSubmitted @entity {
   id: ID!
-  message: String!
-  timestamp: BigInt!
+  game: YooLootGame!
+  player: Player!
+  deckHash: Bytes!
+  deck: [Int!]
 }

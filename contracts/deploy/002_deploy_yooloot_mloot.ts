@@ -36,22 +36,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   if (receipt.events) {
     const {
-      loot,
-      winnerGetLoot,
-      commit3HPeriod,
-      reveal3HPeriod,
-      winner3HPeriod,
       newYooLoot,
       authorizedAsXPSource,
     }: {
-      loot: string;
-      winnerGetLoot: boolean;
-      commit3HPeriod: number;
-      reveal3HPeriod: number;
-      winner3HPeriod: number;
       newYooLoot: string;
       authorizedAsXPSource: boolean;
-    } = receipt.events[1].args;
+    } = receipt.events[2].args;
 
     deployments.save('YooLoot_mloot', {
       address: newYooLoot,

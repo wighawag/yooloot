@@ -23,4 +23,22 @@ dataSources:
         # event LootDeckSubmitted(address indexed player, uint256 indexed lootId, bytes32 deckHash);
         - event: LootDeckSubmitted(indexed address,indexed uint256,bytes32)
           handler: handleLootDeckSubmitted
+        # event LootDeckCanceled(address indexed player, uint256 indexed lootId);
+        - event: LootDeckCanceled(indexed address,indexed uint256)
+          handler: handleDeckCanceled
+        # event LootDeckRevealed(uint256 indexed lootId, uint8[8] deck);
+        - event: LootDeckRevealed(indexed uint256,uint8[8])
+          handler: handleLootDeckRevealed
+        # event WinnerWithdrawal(address indexed winner, address indexed playerPastOwner, uint256 indexed lootId);
+        - event: WinnerWithdrawal(indexed address,indexed address,indexed uint256)
+          handler: handleWinnerWithdrawal
+        # event LootWithdrawn(address indexed player, uint256 indexed lootId, uint256 xpGaimed);
+        - event: LootWithdrawn(indexed address,indexed uint256,uint256)
+          handler: handleLootWithdrawn
+        # event NewGame(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod);
+        - event: NewGame(indexed address,bool,uint8,uint8.uint8)
+          handler: handleNewGame
+        # event Cloned(address newYooLoot, bool authorizedAsXPSource);
+        - event: Cloned(address,bool)
+          handler: handleCloned
       file: ./src/mapping.ts

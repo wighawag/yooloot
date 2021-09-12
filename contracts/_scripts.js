@@ -126,7 +126,7 @@ async function performAction(rawArgs) {
         options['no-impersonation']
           ? `HARDHAT_DEPLOY_NO_IMPERSONATION=true`
           : ''
-      } hardhat node ${extra.join(' ')}`
+      } hardhat node --hostname 0.0.0.0 ${extra.join(' ')}`
     );
   } else if (firstArg === 'fork:test') {
     const {fixedArgs, options, extra} = parseArgs(args, 1, {
@@ -156,7 +156,9 @@ async function performAction(rawArgs) {
         options['no-impersonation']
           ? `HARDHAT_DEPLOY_NO_IMPERSONATION=true`
           : ''
-      } hardhat node --watch --export contractsInfo.json ${extra.join(' ')}`
+      } hardhat node --hostname 0.0.0.0 --watch --export contractsInfo.json ${extra.join(
+        ' '
+      )}`
     );
   }
 }

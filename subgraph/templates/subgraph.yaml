@@ -1,0 +1,26 @@
+specVersion: 0.0.2
+description: YooLoot
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: YooLoot
+    network: {{chainName}}
+    source:
+      address: '{{contracts.YooLoot.address}}'
+      abi: YooLootContract
+      startBlock: {{contracts.YooLoot.receipt.blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - MessageEntry
+      abis:
+        - name: YooLootContract
+          file: ./abis/YooLoot.json
+      eventHandlers:
+        # event LootDeckSubmitted(address indexed player, uint256 indexed lootId, bytes32 deckHash);
+        - event: LootDeckSubmitted(indexed address,indexed uint256,bytes32)
+          handler: handleLootDeckSubmitted
+      file: ./src/mapping.ts

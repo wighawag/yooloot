@@ -1,0 +1,20 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "workspacePrefix": "/home/wighawag/dev/wighawag/loot/yooloot-game"
+  },
+  "1 error pnpm": {
+    "errno": 1,
+    "code": "ELIFECYCLE",
+    "pkgid": "yooloot-subgraph@0.0.1",
+    "stage": "dev",
+    "script": "npm-run-all \"deploy -- {1}\" \"watch -- {1}\" -- \"../contracts/deployments/localhost\"",
+    "pkgname": "yooloot-subgraph",
+    "err": {
+      "name": "Error",
+      "message": "yooloot-subgraph@0.0.1 dev: `npm-run-all \"deploy -- {1}\" \"watch -- {1}\" -- \"../contracts/deployments/localhost\"`\nExit status 1",
+      "code": "ELIFECYCLE",
+      "stack": "Error: yooloot-subgraph@0.0.1 dev: `npm-run-all \"deploy -- {1}\" \"watch -- {1}\" -- \"../contracts/deployments/localhost\"`\nExit status 1\n    at EventEmitter.<anonymous> (/home/wighawag/.volta/tools/image/node/14.16.1/pnpm-global/5/node_modules/.pnpm/pnpm@6.7.6/node_modules/pnpm/dist/pnpm.cjs:104107:20)\n    at EventEmitter.emit (events.js:400:28)\n    at ChildProcess.<anonymous> (/home/wighawag/.volta/tools/image/node/14.16.1/pnpm-global/5/node_modules/.pnpm/pnpm@6.7.6/node_modules/pnpm/dist/pnpm.cjs:92413:18)\n    at ChildProcess.emit (events.js:400:28)\n    at maybeClose (internal/child_process.js:1055:16)\n    at Process.ChildProcess._handle.onexit (internal/child_process.js:288:5)"
+    }
+  }
+}

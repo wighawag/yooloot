@@ -163,6 +163,8 @@ contract YooLoot {
     function changeDeck(uint256 oldLootId, uint256 lootId, bytes32 deckHash) external {
         require((block.timestamp - parameters.startTime) < (3 hours * uint256(parameters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "INVALID HASH");
+        require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "NEVER_SUBMITTED");
+
         require(msg.sender == deposits[oldLootId], "NOT_YOUR_LOOT");
         deckHashes[lootId] = deckHash;
         if (oldLootId != lootId) {
@@ -200,6 +202,8 @@ contract YooLoot {
 
         bytes32 deckHash = deckHashes[lootId];
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "ALREADY_REVEALED");
+        require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000000, "NEVER_SUBMITTED");
+
         require(keccak256(abi.encodePacked(secret, lootId, deckWithStartIndex1)) == deckHash, "INVALID_SECRET'");
         deckHashes[lootId] = 0x0000000000000000000000000000000000000000000000000000000000000001;
         uint8[8] memory indicesUsed;

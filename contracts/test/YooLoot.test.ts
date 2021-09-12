@@ -102,9 +102,9 @@ const setup = deployments.createFixture(async () => {
 });
 
 describe('YooLoot', function () {
-  it('getParams', async function () {
+  it('parameters', async function () {
     const {users, YooLoot} = await setup();
-    await YooLoot.getParams();
+    await YooLoot.parameters();
   });
 
   it('commitLootDeck', async function () {

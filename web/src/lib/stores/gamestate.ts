@@ -76,7 +76,7 @@ class GameStateStore extends BaseStore<GameState> {
     if (wallet.provider) {
       if (!this.$store.startTime) {
 
-        const params = await wallet.contracts[YooLootContract].callStatic.getParams();
+        const params = await wallet.contracts[YooLootContract].callStatic.parameters();
         const {startTime, commit3HPeriod, reveal3HPeriod, winner3HPeriod} = params;
         // console.log({startTime, commit3HPeriod, reveal3HPeriod, winner3HPeriod})
         const commitPeriodEnd = startTime + commit3HPeriod * 3 * 3600;

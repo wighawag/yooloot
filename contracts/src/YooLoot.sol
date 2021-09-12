@@ -33,11 +33,11 @@ contract YooLoot {
         uint8[8] deckPower;
     }
 
-    Parameters private _paramaters;
+    mapping(uint256 => address) public deposits;
+    Parameters public parameters;
+    mapping(uint256 => bytes32) public deckHashes;
+    mapping(uint8 => mapping(uint8 => uint256)) public rounds;
 
-    mapping(uint256 => address) private _deposits;
-    mapping(uint256 => bytes32) private _deckHashes;
-    mapping(uint8 => mapping(uint8 => uint256)) private _rounds;
 
     address private immutable _originalLoot;
     address private immutable _mloot;
@@ -68,18 +68,18 @@ contract YooLoot {
         uint8 reveal3HPeriod,
         uint8 winner3HPeriod
     ) internal {
-        require(_paramaters.startTime == 0, "ALREADY_INITIALISED");
+        require(parameters.startTime == 0, "ALREADY_INITIALISED");
         require(commit3HPeriod >= 2, "COMMIT_PERIOD_TOO_SHORT"); // 6 hours
         require(commit3HPeriod >= 8 ? reveal3HPeriod >= 8: reveal3HPeriod >= commit3HPeriod, "REVEAL_PERIOD_TOO_SHORT");
         require(reveal3HPeriod <= 24, "REVEAL_PERIOD_TOO_LONG"); // 3 days
         require(commit3HPeriod >= 8 ? winner3HPeriod >= 8: winner3HPeriod >= commit3HPeriod, "WINNER_PERIOD_TOO_SHORT");
         require(winner3HPeriod <= 24, "WINNER_PERIOD_TOO_LONG"); // 3 days
-        _paramaters.loot = loot;
-        _paramaters.winnerGetLoot = winnerGetLoot;
-        _paramaters.startTime = uint40(block.timestamp);
-        _paramaters.commit3HPeriod = commit3HPeriod;
-        _paramaters.reveal3HPeriod = reveal3HPeriod;
-        _paramaters.winner3HPeriod = winner3HPeriod;
+        parameters.loot = loot;
+        parameters.winnerGetLoot = winnerGetLoot;
+        parameters.startTime = uint40(block.timestamp);
+        parameters.commit3HPeriod = commit3HPeriod;
+        parameters.reveal3HPeriod = reveal3HPeriod;
+        parameters.winner3HPeriod = winner3HPeriod;
     }
 
     function freeFormInit(
@@ -152,25 +152,25 @@ contract YooLoot {
     }
 
     function commitLootDeck(uint256 lootId, bytes32 deckHash) external {
-        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
+        require((block.timestamp - parameters.startTime) < (3 hours * uint256(parameters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "INVALID HASH");
-        _deckHashes[lootId] = deckHash;
-        _deposits[lootId] = msg.sender;
-        _paramaters.loot.transferFrom(msg.sender, address(this), lootId);
+        deckHashes[lootId] = deckHash;
+        deposits[lootId] = msg.sender;
+        parameters.loot.transferFrom(msg.sender, address(this), lootId);
         emit LootDeckSubmitted(msg.sender, lootId, deckHash);
     }
 
     function changeDeck(uint256 oldLootId, uint256 lootId, bytes32 deckHash) external {
-        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
+        require((block.timestamp - parameters.startTime) < (3 hours * uint256(parameters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "INVALID HASH");
-        require(msg.sender == _deposits[oldLootId], "NOT_YOUR_LOOT");
-        _deckHashes[lootId] = deckHash;
+        require(msg.sender == deposits[oldLootId], "NOT_YOUR_LOOT");
+        deckHashes[lootId] = deckHash;
         if (oldLootId != lootId) {
-            _deckHashes[oldLootId] = 0x0000000000000000000000000000000000000000000000000000000000000000;
-            _deposits[oldLootId] = address(0);
-            _deposits[lootId] = msg.sender;
-            _paramaters.loot.safeTransferFrom(address(this), msg.sender, oldLootId);
-            _paramaters.loot.transferFrom(msg.sender, address(this), lootId);
+            deckHashes[oldLootId] = 0x0000000000000000000000000000000000000000000000000000000000000000;
+            deposits[oldLootId] = address(0);
+            deposits[lootId] = msg.sender;
+            parameters.loot.safeTransferFrom(address(this), msg.sender, oldLootId);
+            parameters.loot.transferFrom(msg.sender, address(this), lootId);
         }
 
         emit LootDeckCanceled(msg.sender, oldLootId);
@@ -178,11 +178,11 @@ contract YooLoot {
     }
 
     function cancelDeck(uint256 oldLootId) external {
-        require((block.timestamp - _paramaters.startTime) < (3 hours * uint256(_paramaters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
-        require(msg.sender == _deposits[oldLootId], "NOT_YOUR_LOOT");
-        _deckHashes[oldLootId] = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        _deposits[oldLootId] = address(0);
-        _paramaters.loot.safeTransferFrom(address(this), msg.sender, oldLootId);
+        require((block.timestamp - parameters.startTime) < (3 hours * uint256(parameters.commit3HPeriod)), "COMMIT_PERIOD_OVER");
+        require(msg.sender == deposits[oldLootId], "NOT_YOUR_LOOT");
+        deckHashes[oldLootId] = 0x0000000000000000000000000000000000000000000000000000000000000000;
+        deposits[oldLootId] = address(0);
+        parameters.loot.safeTransferFrom(address(this), msg.sender, oldLootId);
         emit LootDeckCanceled(msg.sender, oldLootId);
     }
 
@@ -191,27 +191,27 @@ contract YooLoot {
         uint8[8] calldata deckWithStartIndex1,
         bytes32 secret
     ) external {
-        uint256 commitPeriod = (3 hours * uint256(_paramaters.commit3HPeriod));
-        uint256 timePassed = block.timestamp - _paramaters.startTime;
+        uint256 commitPeriod = (3 hours * uint256(parameters.commit3HPeriod));
+        uint256 timePassed = block.timestamp - parameters.startTime;
 
         require(timePassed > commitPeriod, "REVEAL_PERIOD_NOT_STARTED");
 
-        require(timePassed < commitPeriod + 3 hours * uint256(_paramaters.reveal3HPeriod), "REVEAL_PERIOD_OVER");
+        require(timePassed < commitPeriod + 3 hours * uint256(parameters.reveal3HPeriod), "REVEAL_PERIOD_OVER");
 
-        bytes32 deckHash = _deckHashes[lootId];
+        bytes32 deckHash = deckHashes[lootId];
         require(deckHash != 0x0000000000000000000000000000000000000000000000000000000000000001, "ALREADY_REVEALED");
         require(keccak256(abi.encodePacked(secret, lootId, deckWithStartIndex1)) == deckHash, "INVALID_SECRET'");
-        _deckHashes[lootId] = 0x0000000000000000000000000000000000000000000000000000000000000001;
+        deckHashes[lootId] = 0x0000000000000000000000000000000000000000000000000000000000000001;
         uint8[8] memory indicesUsed;
         for (uint8 i = 0; i < 8; i++) {
             uint8 index = deckWithStartIndex1[i] - 1;
             indicesUsed[index]++;
-            uint8 power = pluckPower(lootId, index, address(_paramaters.loot) == _lootForEveryone);
-            uint256 current = _rounds[i][power];
+            uint8 power = pluckPower(lootId, index, address(parameters.loot) == _lootForEveryone);
+            uint256 current = rounds[i][power];
             if (current == 0) {
-                _rounds[i][power] = lootId;
+                rounds[i][power] = lootId;
             } else if (current != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
-                _rounds[i][power] = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+                rounds[i][power] = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
             }
         }
         for (uint8 i = 0; i < 8; i++) {
@@ -230,12 +230,12 @@ contract YooLoot {
             uint256 winnerScore
         )
     {
-        require((block.timestamp - _paramaters.startTime) > (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod))), "REVEAL_PERIOD_NOT_OVER");
+        require((block.timestamp - parameters.startTime) > (3 hours * (uint256(parameters.commit3HPeriod) + uint256(parameters.reveal3HPeriod))), "REVEAL_PERIOD_NOT_OVER");
 
         uint256[8] memory winnerLootPerRound;
         for (uint8 round = 0; round < 8; round++) {
             for (uint8 power = 126; power > 0; power--) {
-                uint256 lootId = _rounds[round][power - 1];
+                uint256 lootId = rounds[round][power - 1];
                 if (lootId > 0 && lootId != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
                     winnerLootPerRound[round] = lootId;
                     winnerAddress = 0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF;
@@ -265,15 +265,7 @@ contract YooLoot {
                 winnerScore = tmpScore;
             }
         }
-        winnerAddress = _deposits[winnerLootId];
-    }
-
-    function getDeckHash(uint256 lootId) external view returns(bytes32) {
-        return _deckHashes[lootId];
-    }
-
-    function getParams() external view returns (Parameters memory) {
-        return _paramaters;
+        winnerAddress = deposits[winnerLootId];
     }
 
     // solhint-disable-next-line code-complexity
@@ -283,13 +275,13 @@ contract YooLoot {
             "INVALID_LOOT"
         );
 
-        require((block.timestamp - _paramaters.startTime) > (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod))), "REVEAL_PERIOD_NOT_OVER");
+        require((block.timestamp - parameters.startTime) > (3 hours * (uint256(parameters.commit3HPeriod) + uint256(parameters.reveal3HPeriod))), "REVEAL_PERIOD_NOT_OVER");
 
         uint256 extra = 0;
         for (uint8 round = 0; round < 8; round++) {
             bool anyone = false;
             for (uint8 power = 126; power > 0; power--) {
-                uint256 lootIdHere = _rounds[round][power - 1];
+                uint256 lootIdHere = rounds[round][power - 1];
                 if (lootIdHere == lootId) {
                     score += (round + 1) + extra;
                     anyone = true;
@@ -315,14 +307,14 @@ contract YooLoot {
         uint256 start,
         uint256 num
     ) external view returns (TokenData[] memory tokens) {
-        uint256 balance = _paramaters.loot.balanceOf(owner);
+        uint256 balance = parameters.loot.balanceOf(owner);
         require(balance >= start + num, "TOO_MANY_TOKEN_REQUESTED");
         tokens = new TokenData[](num);
         uint8[8] memory baseDeck = [1,2,3,4,5,6,7,8];
         uint256 i = 0;
         while (i < num) {
-            uint256 id = _paramaters.loot.tokenOfOwnerByIndex(owner, start + i);
-            tokens[i] = TokenData(id, _paramaters.loot.tokenURI(id), getDeckPower(id, baseDeck, address(_paramaters.loot) == _lootForEveryone));
+            uint256 id = parameters.loot.tokenOfOwnerByIndex(owner, start + i);
+            tokens[i] = TokenData(id, parameters.loot.tokenURI(id), getDeckPower(id, baseDeck, address(parameters.loot) == _lootForEveryone));
             i++;
         }
     }
@@ -331,26 +323,26 @@ contract YooLoot {
         uint256 id
     ) external view returns (TokenData memory) {
         uint8[8] memory baseDeck = [1,2,3,4,5,6,7,8];
-        return TokenData(id, _paramaters.loot.tokenURI(id), getDeckPower(id, baseDeck, address(_paramaters.loot) == _lootForEveryone));
+        return TokenData(id, parameters.loot.tokenURI(id), getDeckPower(id, baseDeck, address(parameters.loot) == _lootForEveryone));
     }
 
     function claimVictoryLoot(uint256 lootToPick) external {
-        require(_paramaters.winnerGetLoot, "NO_LOOT_TO_WIN");
+        require(parameters.winnerGetLoot, "NO_LOOT_TO_WIN");
 
-        require((block.timestamp - _paramaters.startTime) < (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod) + uint256(_paramaters.winner3HPeriod))), "VICTORY_PERIOD_OVER");
+        require((block.timestamp - parameters.startTime) < (3 hours * (uint256(parameters.commit3HPeriod) + uint256(parameters.reveal3HPeriod) + uint256(parameters.winner3HPeriod))), "VICTORY_PERIOD_OVER");
 
         (address winnerAddress, , ) = winner();
         require(winnerAddress == msg.sender, "NOT_WINNER");
-        address takenFrom = _deposits[lootToPick];
+        address takenFrom = deposits[lootToPick];
         require(takenFrom != msg.sender, "ALREADY_OWNER");
-        _paramaters.loot.safeTransferFrom(address(this), msg.sender, lootToPick);
-        _paramaters.startTime = 1;
+        parameters.loot.safeTransferFrom(address(this), msg.sender, lootToPick);
+        parameters.startTime = 1;
 
         emit WinnerWithdrawal(msg.sender, takenFrom, lootToPick);
     }
 
     function claimVictoryERC20(IERC20 token) external {
-        require(address(token) != address(_paramaters.loot), "INVALID_ERC20");
+        require(address(token) != address(parameters.loot), "INVALID_ERC20");
         (address winnerAddress, , ) = winner();
         require(winnerAddress == msg.sender, "NOT_WINNER");
         token.transfer(msg.sender, token.balanceOf(address(this)));
@@ -359,16 +351,16 @@ contract YooLoot {
     function withdrawAndGetXP(uint256 lootId) external {
         (address winnerAddress, uint256 winnerLootId, uint256 winnerScore) = winner();
 
-        if (!((block.timestamp - _paramaters.startTime) > (3 hours * (uint256(_paramaters.commit3HPeriod) + uint256(_paramaters.reveal3HPeriod) + uint256(_paramaters.winner3HPeriod))))) {
+        if (!((block.timestamp - parameters.startTime) > (3 hours * (uint256(parameters.commit3HPeriod) + uint256(parameters.reveal3HPeriod) + uint256(parameters.winner3HPeriod))))) {
             require(winnerAddress == address(0), "VICTORY_PERIOD_NOT_OVER");
         }
 
-        require(_deposits[lootId] == msg.sender, "NOT_OWNER");
+        require(deposits[lootId] == msg.sender, "NOT_OWNER");
         require(
-            _deckHashes[lootId] == 0x0000000000000000000000000000000000000000000000000000000000000001,
+            deckHashes[lootId] == 0x0000000000000000000000000000000000000000000000000000000000000001,
             "DID_NOT_REVEAL"
         );
-        _paramaters.loot.safeTransferFrom(address(this), msg.sender, lootId);
+        parameters.loot.safeTransferFrom(address(this), msg.sender, lootId);
         uint256 xpGained;
         if (lootId == winnerLootId) {
             xpGained = 10000 * winnerScore;

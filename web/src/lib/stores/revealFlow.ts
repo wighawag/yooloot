@@ -46,7 +46,7 @@ class PurchaseFlowStore extends BaseStoreWithData<RevealFlow, Data> {
     this.setData({lootId, deck, nonce})
     flow.execute(async (contracts) => {
       this.setPartial({step: 'GETTING_DATA'});
-      const deckHash = await contracts[YooLootContract].getDeckHash(lootId);
+      const deckHash = await contracts[YooLootContract].deckHashes(lootId);
       if (deckHash === '0x0000000000000000000000000000000000000000000000000000000000000001') {
         this.setPartial({step: 'ALREADY_RESOLVED'});
         return;

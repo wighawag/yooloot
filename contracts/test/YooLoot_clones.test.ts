@@ -33,8 +33,8 @@ const setup = deployments.createFixture(async () => {
 });
 
 describe('YooLoot_mloot', function () {
-  it('getParams', async function () {
+  it('parameters', async function () {
     const {users, YooLoot_mloot} = await setup();
-    await YooLoot_mloot.getParams();
+    await YooLoot_mloot.parameters();
   });
 });

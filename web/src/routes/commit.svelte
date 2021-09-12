@@ -190,6 +190,8 @@ import { timeToText } from '$lib/utils';
           <p> this is your card power:</p>
           <p>{$commitFlow.data.loot.deckPower.map((v,i) => `${i+1}:${v}`).join(" / ")}</p>
 
+          <p>Enter the eights numbers (1,2,3,4,5,6,7,8) with commas separating them</p>
+
           <input bind:value={deckString} class="bg-black" type="text" />
           <button
             class="mt-5 p-1 border border-yellow-500"

@@ -1,5 +1,5 @@
 {
-  "address": "0x34079685eD1938A137ea0074B581cbaBf62780E1",
+  "address": "0x139a4a2FcB265EA878016f990Bf02f7816782f62",
   "abi": [
     {
       "anonymous": false,
@@ -407,6 +407,44 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "deckHashes",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposits",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "contract ILoot",
           "name": "loot",
           "type": "address"
@@ -482,25 +520,6 @@
           "internalType": "uint256",
           "name": "lootId",
           "type": "uint256"
-        }
-      ],
-      "name": "getDeckHash",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "lootId",
-          "type": "uint256"
         },
         {
           "internalType": "uint8[8]",
@@ -522,51 +541,6 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getParams",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "contract ILoot",
-              "name": "loot",
-              "type": "address"
-            },
-            {
-              "internalType": "uint40",
-              "name": "startTime",
-              "type": "uint40"
-            },
-            {
-              "internalType": "uint8",
-              "name": "commit3HPeriod",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint8",
-              "name": "reveal3HPeriod",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint8",
-              "name": "winner3HPeriod",
-              "type": "uint8"
-            },
-            {
-              "internalType": "bool",
-              "name": "winnerGetLoot",
-              "type": "bool"
-            }
-          ],
-          "internalType": "struct YooLoot.Parameters",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -704,6 +678,44 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "parameters",
+      "outputs": [
+        {
+          "internalType": "contract ILoot",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "internalType": "uint40",
+          "name": "startTime",
+          "type": "uint40"
+        },
+        {
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -724,6 +736,30 @@
       "name": "revealLootDeck",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "rounds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {

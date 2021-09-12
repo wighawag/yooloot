@@ -1,5 +1,5 @@
 {
-  "address": "0xa62BF00a3aB440685356A02f7bd5798E415C2Af9",
+  "address": "0x92007b8e59C18782c754C30581703b998627EdEA",
   "abi": [
     {
       "anonymous": false,
@@ -407,6 +407,44 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "deckHashes",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposits",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "contract ILoot",
           "name": "loot",
           "type": "address"
@@ -482,25 +520,6 @@
           "internalType": "uint256",
           "name": "lootId",
           "type": "uint256"
-        }
-      ],
-      "name": "getDeckHash",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "lootId",
-          "type": "uint256"
         },
         {
           "internalType": "uint8[8]",
@@ -522,51 +541,6 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getParams",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "contract ILoot",
-              "name": "loot",
-              "type": "address"
-            },
-            {
-              "internalType": "uint40",
-              "name": "startTime",
-              "type": "uint40"
-            },
-            {
-              "internalType": "uint8",
-              "name": "commit3HPeriod",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint8",
-              "name": "reveal3HPeriod",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint8",
-              "name": "winner3HPeriod",
-              "type": "uint8"
-            },
-            {
-              "internalType": "bool",
-              "name": "winnerGetLoot",
-              "type": "bool"
-            }
-          ],
-          "internalType": "struct YooLoot.Parameters",
-          "name": "",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -704,6 +678,44 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "parameters",
+      "outputs": [
+        {
+          "internalType": "contract ILoot",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "internalType": "uint40",
+          "name": "startTime",
+          "type": "uint40"
+        },
+        {
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -724,6 +736,30 @@
       "name": "revealLootDeck",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "rounds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -784,53 +820,53 @@
       "type": "constructor"
     }
   ],
-  "transactionHash": "0xb865abe883051ded90de16dda0ad9174ac67056c955fa083735a529029efb49e",
+  "transactionHash": "0xa0d0a8044fe026d284e431e641f71b39781683a7b0fe1564fe0bb5a3ca782f5e",
   "receipt": {
     "to": null,
     "from": "0x61c461EcC993aaDEB7e4b47E96d1B8cC37314B20",
-    "contractAddress": "0xa62BF00a3aB440685356A02f7bd5798E415C2Af9",
-    "transactionIndex": 18,
-    "gasUsed": "641702",
-    "logsBloom": "0x00000000000000000000000000400000000000000000000000800000000000000000000000000000000400000000000000000000000000400000000000000000000000000000000000000000000000000001000000000000000000000000000000000000020000000000000000000800000000040000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000040000000000000008000200021000000020000000000400400000000000000000000000000000000000000000000",
-    "blockHash": "0xa90017732318186f27e01c97084e101f386c37530eb4c8f3817bc8f74028f910",
-    "transactionHash": "0xb865abe883051ded90de16dda0ad9174ac67056c955fa083735a529029efb49e",
+    "contractAddress": "0x92007b8e59C18782c754C30581703b998627EdEA",
+    "transactionIndex": 1,
+    "gasUsed": "641746",
+    "logsBloom": "0x00000000000000000000000000400000000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000001000800000000000000000000000000000000020000000000000000000800000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200020000000000000000000000000000000000004000000000000000000000000000000000000000000000000000240021000000000000000000001400000000000000000000000000000000000000000000",
+    "blockHash": "0x5488ea7dfe1b98d570cab7240a6f5c52781ca8ad5fc51ef33fa6272af502827e",
+    "transactionHash": "0xa0d0a8044fe026d284e431e641f71b39781683a7b0fe1564fe0bb5a3ca782f5e",
     "logs": [
       {
-        "transactionIndex": 18,
-        "blockNumber": 5480098,
-        "transactionHash": "0xb865abe883051ded90de16dda0ad9174ac67056c955fa083735a529029efb49e",
-        "address": "0xa62BF00a3aB440685356A02f7bd5798E415C2Af9",
+        "transactionIndex": 1,
+        "blockNumber": 5485754,
+        "transactionHash": "0xa0d0a8044fe026d284e431e641f71b39781683a7b0fe1564fe0bb5a3ca782f5e",
+        "address": "0x92007b8e59C18782c754C30581703b998627EdEA",
         "topics": [
           "0x5570d70a002632a7b0b3c9304cc89efb62d8da9eca0dbd7752c83b7379068296",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "0x00000000000000000000000003cefaa92264ab4f154e84543b1a03678f4f44d6"
+          "0x00000000000000000000000092b1696f7ffa999cd3329b4f2bccca2fb8ca2839"
         ],
         "data": "0x",
-        "logIndex": 7,
-        "blockHash": "0xa90017732318186f27e01c97084e101f386c37530eb4c8f3817bc8f74028f910"
+        "logIndex": 1,
+        "blockHash": "0x5488ea7dfe1b98d570cab7240a6f5c52781ca8ad5fc51ef33fa6272af502827e"
       },
       {
-        "transactionIndex": 18,
-        "blockNumber": 5480098,
-        "transactionHash": "0xb865abe883051ded90de16dda0ad9174ac67056c955fa083735a529029efb49e",
-        "address": "0xa62BF00a3aB440685356A02f7bd5798E415C2Af9",
+        "transactionIndex": 1,
+        "blockNumber": 5485754,
+        "transactionHash": "0xa0d0a8044fe026d284e431e641f71b39781683a7b0fe1564fe0bb5a3ca782f5e",
+        "address": "0x92007b8e59C18782c754C30581703b998627EdEA",
         "topics": [
           "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x00000000000000000000000061c461ecc993aadeb7e4b47e96d1b8cc37314b20"
         ],
         "data": "0x",
-        "logIndex": 8,
-        "blockHash": "0xa90017732318186f27e01c97084e101f386c37530eb4c8f3817bc8f74028f910"
+        "logIndex": 2,
+        "blockHash": "0x5488ea7dfe1b98d570cab7240a6f5c52781ca8ad5fc51ef33fa6272af502827e"
       }
     ],
-    "blockNumber": 5480098,
-    "cumulativeGasUsed": "4764665",
+    "blockNumber": 5485754,
+    "cumulativeGasUsed": "693505",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0x03CefAA92264Ab4F154e84543B1A03678f4f44d6",
+    "0x92B1696f7FFA999cd3329b4F2BCcCa2Fb8Ca2839",
     "0x61c461EcC993aaDEB7e4b47E96d1B8cC37314B20",
     "0x8e76c692000000000000000000000000a88001dc4144af60b24e97a73bb7a8cfe908e59c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000003800000000000000000000000000000000000000000000000000000000000000180000000000000000000000000000000000000000000000000000000000000008"
   ],
@@ -848,7 +884,7 @@
       8
     ]
   },
-  "implementation": "0x03CefAA92264Ab4F154e84543B1A03678f4f44d6",
+  "implementation": "0x92B1696f7FFA999cd3329b4F2BCcCa2Fb8Ca2839",
   "devdoc": {
     "kind": "dev",
     "methods": {},

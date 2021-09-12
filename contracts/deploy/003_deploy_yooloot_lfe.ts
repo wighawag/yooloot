@@ -47,7 +47,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }: {
       newYooLoot: string;
       authorizedAsXPSource: boolean;
-    } = receipt.events[2].args;
+    } = receipt.events[0].args;
 
     deployments.save('YooLoot_lfe', {
       address: newYooLoot,

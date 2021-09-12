@@ -144,13 +144,13 @@ contract YooLoot {
             implementation = address(this);
         }
         address yooloot = Clones.clone(implementation);
+        emit Cloned(yooloot, generateXP);
         if (generateXP) {
             YooLoot(yooloot).init(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
             _lootXP.setSource(yooloot, true);
         } else {
             YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, commit3HPeriod, reveal3HPeriod, winner3HPeriod);
         }
-        emit Cloned(yooloot, generateXP);
         return yooloot;
     }
 

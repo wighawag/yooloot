@@ -4,7 +4,7 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: YooLoot
+    name: FirstYooLoot
     network: {{chainName}}
     source:
       address: '{{contracts.YooLoot.address}}'
@@ -15,11 +15,42 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
-        - MessageEntry
+        - YooLootGame
+        - LootSubmitted
+        - Player
       abis:
         - name: YooLootContract
           file: ./abis/YooLoot.json
       eventHandlers:
+        # event NewGame(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod);
+        - event: NewGame(indexed address,bool,uint8,uint8,uint8)
+          handler: handleNewGame
+        # event Cloned(address newYooLoot, bool authorizedAsXPSource);
+        - event: Cloned(address,bool)
+          handler: handleCloned
+      file: ./src/first.ts
+templates:
+  - name: YooLoot
+    kind: ethereum/contract
+    network: {{chainName}}
+    source:
+      abi: YooLootContract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.1
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - YooLootGame
+        - LootSubmitted
+        - Player
+      abis:
+        - name: YooLootContract
+          file: ./abis/YooLoot.json
+      eventHandlers:
+        # event NewGame(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod);
+        - event: NewGame(indexed address,bool,uint8,uint8,uint8)
+          handler: handleNewGame
         # event LootDeckSubmitted(address indexed player, uint256 indexed lootId, bytes32 deckHash);
         - event: LootDeckSubmitted(indexed address,indexed uint256,bytes32)
           handler: handleLootDeckSubmitted
@@ -35,10 +66,3 @@ dataSources:
         # event LootWithdrawn(address indexed player, uint256 indexed lootId, uint256 xpGaimed);
         - event: LootWithdrawn(indexed address,indexed uint256,uint256)
           handler: handleLootWithdrawn
-        # event NewGame(address indexed loot, bool winnerGetLoot, uint8 commit3HPeriod, uint8 reveal3HPeriod, uint8 winner3HPeriod);
-        - event: NewGame(indexed address,bool,uint8,uint8.uint8)
-          handler: handleNewGame
-        # event Cloned(address newYooLoot, bool authorizedAsXPSource);
-        - event: Cloned(address,bool)
-          handler: handleCloned
-      file: ./src/mapping.ts

@@ -3,7 +3,7 @@ type YooLootGame @entity {
   loots: [LootSubmitted!]! @derivedFrom(field: "game")
   lootContract: Bytes!
   winnerGetLoot: Boolean!
-  startTime: Int!
+  startTime: BigInt!
   commit3HPeriod: Int!
   reveal3HPeriod: Int!
   winner3HPeriod: Int!
@@ -21,4 +21,5 @@ type LootSubmitted @entity {
   player: Player!
   deckHash: Bytes!
   deck: [Int!]
+  # nonce: BigInt!
 }

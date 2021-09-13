@@ -70,11 +70,11 @@ contract YooLoot {
         uint8 winner3HPeriod
     ) internal {
         require(parameters.startTime == 0, "ALREADY_INITIALISED");
-        // require(commit3HPeriod >= 2, "COMMIT_PERIOD_TOO_SHORT"); // 6 hours
-        // require(commit3HPeriod >= 8 ? reveal3HPeriod >= 8: reveal3HPeriod >= commit3HPeriod, "REVEAL_PERIOD_TOO_SHORT");
-        // require(reveal3HPeriod <= 24, "REVEAL_PERIOD_TOO_LONG"); // 3 days
-        // require(commit3HPeriod >= 8 ? winner3HPeriod >= 8: winner3HPeriod >= commit3HPeriod, "WINNER_PERIOD_TOO_SHORT");
-        // require(winner3HPeriod <= 24, "WINNER_PERIOD_TOO_LONG"); // 3 days
+        require(commit3HPeriod >= 2, "COMMIT_PERIOD_TOO_SHORT"); // 6 hours
+        require(commit3HPeriod >= 8 ? reveal3HPeriod >= 8: reveal3HPeriod >= commit3HPeriod, "REVEAL_PERIOD_TOO_SHORT");
+        require(reveal3HPeriod <= 24, "REVEAL_PERIOD_TOO_LONG"); // 3 days
+        require(commit3HPeriod >= 8 ? winner3HPeriod >= 8: winner3HPeriod >= commit3HPeriod, "WINNER_PERIOD_TOO_SHORT");
+        require(winner3HPeriod <= 24, "WINNER_PERIOD_TOO_LONG"); // 3 days
         parameters.loot = loot;
         parameters.winnerGetLoot = winnerGetLoot;
         parameters.startTime = uint40(block.timestamp);

@@ -7,19 +7,166 @@ type YooLootGame @entity {
   commit3HPeriod: Int!
   reveal3HPeriod: Int!
   winner3HPeriod: Int!
-  currentWinner: Player
+  currentWinnerLoot: LootSubmitted
+  numLoots: BigInt!
+  # round1: [[LootSubmitted!]!]
+  # round2: [[LootSubmitted!]!]
+  # round3: [[LootSubmitted!]!]
+  # round4: [[LootSubmitted!]!]
+  # round5: [[LootSubmitted!]!]
+  # round6: [[LootSubmitted!]!]
+  # round7: [[LootSubmitted!]!]
+  # round8: [[LootSubmitted!]!]
+}
+
+type Round @entity {
+  id: ID!
+  game: YooLootGame!
+  p001: [LootSubmitted!]!
+  p002: [LootSubmitted!]!
+  p003: [LootSubmitted!]!
+  p004: [LootSubmitted!]!
+  p005: [LootSubmitted!]!
+  p006: [LootSubmitted!]!
+  p007: [LootSubmitted!]!
+  p008: [LootSubmitted!]!
+  p009: [LootSubmitted!]!
+  p010: [LootSubmitted!]!
+  p011: [LootSubmitted!]!
+  p012: [LootSubmitted!]!
+  p013: [LootSubmitted!]!
+  p014: [LootSubmitted!]!
+  p015: [LootSubmitted!]!
+  p016: [LootSubmitted!]!
+  p017: [LootSubmitted!]!
+  p018: [LootSubmitted!]!
+  p019: [LootSubmitted!]!
+  p020: [LootSubmitted!]!
+  p021: [LootSubmitted!]!
+  p022: [LootSubmitted!]!
+  p023: [LootSubmitted!]!
+  p024: [LootSubmitted!]!
+  p025: [LootSubmitted!]!
+  p026: [LootSubmitted!]!
+  p027: [LootSubmitted!]!
+  p028: [LootSubmitted!]!
+  p029: [LootSubmitted!]!
+  p030: [LootSubmitted!]!
+  p031: [LootSubmitted!]!
+  p032: [LootSubmitted!]!
+  p033: [LootSubmitted!]!
+  p034: [LootSubmitted!]!
+  p035: [LootSubmitted!]!
+  p036: [LootSubmitted!]!
+  p037: [LootSubmitted!]!
+  p038: [LootSubmitted!]!
+  p039: [LootSubmitted!]!
+  p040: [LootSubmitted!]!
+  p041: [LootSubmitted!]!
+  p042: [LootSubmitted!]!
+  p043: [LootSubmitted!]!
+  p044: [LootSubmitted!]!
+  p045: [LootSubmitted!]!
+  p046: [LootSubmitted!]!
+  p047: [LootSubmitted!]!
+  p048: [LootSubmitted!]!
+  p049: [LootSubmitted!]!
+  p050: [LootSubmitted!]!
+  p051: [LootSubmitted!]!
+  p052: [LootSubmitted!]!
+  p053: [LootSubmitted!]!
+  p054: [LootSubmitted!]!
+  p055: [LootSubmitted!]!
+  p056: [LootSubmitted!]!
+  p057: [LootSubmitted!]!
+  p058: [LootSubmitted!]!
+  p059: [LootSubmitted!]!
+  p060: [LootSubmitted!]!
+  p061: [LootSubmitted!]!
+  p062: [LootSubmitted!]!
+  p063: [LootSubmitted!]!
+  p064: [LootSubmitted!]!
+  p065: [LootSubmitted!]!
+  p066: [LootSubmitted!]!
+  p067: [LootSubmitted!]!
+  p068: [LootSubmitted!]!
+  p069: [LootSubmitted!]!
+  p070: [LootSubmitted!]!
+  p071: [LootSubmitted!]!
+  p072: [LootSubmitted!]!
+  p073: [LootSubmitted!]!
+  p074: [LootSubmitted!]!
+  p075: [LootSubmitted!]!
+  p076: [LootSubmitted!]!
+  p077: [LootSubmitted!]!
+  p078: [LootSubmitted!]!
+  p079: [LootSubmitted!]!
+  p080: [LootSubmitted!]!
+  p081: [LootSubmitted!]!
+  p082: [LootSubmitted!]!
+  p083: [LootSubmitted!]!
+  p084: [LootSubmitted!]!
+  p085: [LootSubmitted!]!
+  p086: [LootSubmitted!]!
+  p087: [LootSubmitted!]!
+  p088: [LootSubmitted!]!
+  p089: [LootSubmitted!]!
+  p090: [LootSubmitted!]!
+  p091: [LootSubmitted!]!
+  p092: [LootSubmitted!]!
+  p093: [LootSubmitted!]!
+  p094: [LootSubmitted!]!
+  p095: [LootSubmitted!]!
+  p096: [LootSubmitted!]!
+  p097: [LootSubmitted!]!
+  p098: [LootSubmitted!]!
+  p099: [LootSubmitted!]!
+  p100: [LootSubmitted!]!
+  p101: [LootSubmitted!]!
+  p102: [LootSubmitted!]!
+  p103: [LootSubmitted!]!
+  p104: [LootSubmitted!]!
+  p105: [LootSubmitted!]!
+  p106: [LootSubmitted!]!
+  p107: [LootSubmitted!]!
+  p108: [LootSubmitted!]!
+  p109: [LootSubmitted!]!
+  p110: [LootSubmitted!]!
+  p111: [LootSubmitted!]!
+  p112: [LootSubmitted!]!
+  p113: [LootSubmitted!]!
+  p114: [LootSubmitted!]!
+  p115: [LootSubmitted!]!
+  p116: [LootSubmitted!]!
+  p117: [LootSubmitted!]!
+  p118: [LootSubmitted!]!
+  p119: [LootSubmitted!]!
+  p120: [LootSubmitted!]!
+  p121: [LootSubmitted!]!
+  p122: [LootSubmitted!]!
+  p123: [LootSubmitted!]!
+  p124: [LootSubmitted!]!
+  p125: [LootSubmitted!]!
 }
 
 type Player @entity {
-  id: ID! # address as hex lower case
+  id: ID! # address as hex lower case + YooLoot Game
+  game: YooLootGame!
   loots: [LootSubmitted!]! @derivedFrom(field: "player")
 }
 
 type LootSubmitted @entity {
-  id: ID!
+  id: ID! #lootContract + lootId
   game: YooLootGame!
   player: Player!
   deckHash: Bytes!
+  transactionHash: Bytes!
   deck: [Int!]
+  deckPower: [Int!]
+  currentScore: Int
+  withdrawn: Boolean!
+  takenByWinner: Boolean!
+  # defaultDeckPower: [Int!]!
+
   # nonce: BigInt!
 }

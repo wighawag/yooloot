@@ -21,10 +21,18 @@ import { timeToText } from '$lib/utils';
     commitFlow.chooseLoot(nft);
   }
 
-  let deckString;
+  let deckString1 = 8;
+  let deckString2 = 7;
+  let deckString3 = 6;
+  let deckString4 = 5;
+  let deckString5 = 4;
+  let deckString6 = 3;
+  let deckString7 = 2;
+  let deckString8 = 1;
 
   function chooseDeck() {
-    const deck = deckString.split(',').map(v => parseInt(v));
+    const deck = [deckString1, deckString2, deckString3, deckString4, deckString5, deckString6, deckString7, deckString8];
+    // const deck = [parseInt(deckString1), parseInt(deckString2), parseInt(deckString3), parseInt(deckString4), parseInt(deckString5), parseInt(deckString6), parseInt(deckString7), parseInt(deckString8)];
     if (deck.length !== 8) {
       throw new Error(`invalid deck: length:${deck.length}, need to be 8`);
     }
@@ -190,9 +198,14 @@ import { timeToText } from '$lib/utils';
           <p> this is your card power:</p>
           <p>{$commitFlow.data.loot.deckPower.map((v,i) => `${i+1}:${v}`).join(" / ")}</p>
 
-          <p>Enter the eights numbers (1,2,3,4,5,6,7,8) with commas separating them</p>
-
-          <input bind:value={deckString} class="bg-black" type="text" />
+          <input bind:value={deckString1} class="bg-black" type="number" max="8" min="1" />
+          <input bind:value={deckString2} class="bg-black" type="number" max="8" min="1" />
+          <input bind:value={deckString3} class="bg-black" type="number" max="8" min="1" />
+          <input bind:value={deckString4} class="bg-black" type="number" max="8" min="1" />
+          <input bind:value={deckString5} class="bg-black" type="number" max="8" min="1" />
+          <input bind:value={deckString6} class="bg-black" type="number" max="8" min="1" />
+          <input bind:value={deckString7} class="bg-black" type="number" max="8" min="1" />
+          <input bind:value={deckString8} class="bg-black" type="number" max="8" min="1" />
           <button
             class="mt-5 p-1 border border-yellow-500"
             label="confirm"

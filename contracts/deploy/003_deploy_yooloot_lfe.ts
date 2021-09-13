@@ -24,9 +24,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let winner3HPeriod = daysIn3HPeriods(1);
 
   if (hre.network.name === 'goerli') {
-    commit3HPeriod = 1;
-    reveal3HPeriod = 1;
-    winner3HPeriod = 1;
+    commit3HPeriod = 8;
+    reveal3HPeriod = 8;
+    winner3HPeriod = 8;
   }
 
   const receipt = await execute(

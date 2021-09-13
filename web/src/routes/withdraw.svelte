@@ -5,7 +5,7 @@
 import { url } from '$lib/utils/url';
 import { flow, wallet } from '$lib/stores/wallet';
 import { YooLootContract } from '$lib/config';
-import { toWithdraw } from '$lib/stores/gameQuery';
+import { toWinner, toWithdraw } from '$lib/stores/gameQuery';
 
 
   let winnerLootId: string;
@@ -42,7 +42,24 @@ import { toWithdraw } from '$lib/stores/gameQuery';
     {#if $wallet.address && $wallet.address.toLowerCase() === $gamestate.winner?.toLowerCase()}
       <h2>Congrats! You Won!</h2>
       <p>Please pick a loot to withdraw that is not your (sorry not UI yet to pick)</p>
+
+      {#if $toWinner.data}
+        {#if $toWinner.data.loading}
+          Loading...
+        {:else}
+        <label for="lootId">LootId</label>
+        <select  class="mb-8 bg-black" bind:value={winnerLootId}>
+          {#each $toWinner.data.result.lootSubmitteds as loot}
+            <option value={loot.id}>
+              {loot.id}
+            </option>
+          {/each}
+        </select>
+        {/if}
+      {:else}
       <label for="winnerLootId">LootId</label><input id="winnerLootId" type="text" class="bg-black" bind:value={winnerLootId}/>
+      {/if}
+
 
       <button class="my-4 p-1 border-2 border-red-600" on:click={claimVictoryLoot}>LOOT!</button>
     {:else if !withdrawNotReady }

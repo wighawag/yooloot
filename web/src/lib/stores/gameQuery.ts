@@ -27,6 +27,7 @@ export type GameQueryResult = {
 export type GameState = {
   result: GameQueryResult;
   loading?: boolean;
+  currentPlayer: string;
 }
 
 // TODO fleetArrivedEvents need to be capped from 7 days / latest acknowledged block number
@@ -44,8 +45,8 @@ export class GameQueryStore implements QueryStore<GameState> {
   constructor(endpoint: EndPoint) {
     this.queryStore = new HookedQueryStore( // TODO full list
       endpoint,
-      `query($first: Int! $lastId: ID! $yoolootContractAddress: String! $owner: String) {
-        lootSubmitteds(first: $first where: {id_gt: $lastId game: $yoolootContractAddress ?$owner?player: $owner?}) {
+      `query($first: Int! $lastId: ID! $yoolootContractAddress: String!) {
+        lootSubmitteds(first: $first where: {id_gt: $lastId game: $yoolootContractAddress}) {
           id
           player {id}
           deckHash
@@ -135,7 +136,8 @@ export class GameQueryStore implements QueryStore<GameState> {
     }
     return {
       loading: false,
-      result: data
+      result: data,
+      currentPlayer: this.queryStore.runtimeVariables.owner
     };
   }
 
@@ -168,12 +170,13 @@ export const toReveal: Readable<QueryState<GameState>>  = derived([gameQuery], (
     step: gameState.step,
     data: gameState.data && gameState.data.result ? {
       result: {
-        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => !v.deck),
+        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => !v.deck && v.player.id === gameState.data.currentPlayer.toLowerCase()),
         yoolootGame: {
           numLoots: gameState.data.result.yoolootGame?.numLoots || "0",
         }
       },
-      loading: gameState.data.loading
+      loading: gameState.data.loading,
+      currentPlayer: gameState.data.currentPlayer
     }: undefined,
     error: gameState.error
   }
@@ -184,12 +187,31 @@ export const toWithdraw: Readable<QueryState<GameState>>  = derived([gameQuery],
     step: gameState.step,
     data: gameState.data && gameState.data.result ? {
       result: {
-        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => v.deck && !v.withdrawn),
+        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => v.deck && !v.withdrawn  && v.player.id === gameState.data.currentPlayer.toLowerCase()),
         yoolootGame: {
           numLoots: gameState.data.result.yoolootGame?.numLoots || "0",
         }
       },
-      loading: gameState.data.loading
+      loading: gameState.data.loading,
+      currentPlayer: gameState.data.currentPlayer
+    }: undefined,
+    error: gameState.error
+  }
+})
+
+
+export const toWinner: Readable<QueryState<GameState>>  = derived([gameQuery], ([gameState]) => {
+  return {
+    step: gameState.step,
+    data: gameState.data && gameState.data.result ? {
+      result: {
+        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => v.deck && !v.withdrawn  && v.player.id !== gameState.data.currentPlayer.toLowerCase()),
+        yoolootGame: {
+          numLoots: gameState.data.result.yoolootGame?.numLoots || "0",
+        }
+      },
+      loading: gameState.data.loading,
+      currentPlayer: gameState.data.currentPlayer
     }: undefined,
     error: gameState.error
   }

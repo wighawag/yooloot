@@ -1,5 +1,5 @@
 {
-  "address": "0x139a4a2FcB265EA878016f990Bf02f7816782f62",
+  "address": "0x0c706fd87EB8693A643FE8973B796b8a97B66e7c",
   "abi": [
     {
       "anonymous": false,
@@ -127,36 +127,6 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "loot",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "bool",
-          "name": "winnerGetLoot",
-          "type": "bool"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "commit3HPeriod",
-          "type": "uint8"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "reveal3HPeriod",
-          "type": "uint8"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "winner3HPeriod",
-          "type": "uint8"
-        },
-        {
           "indexed": false,
           "internalType": "address",
           "name": "newYooLoot",
@@ -258,6 +228,43 @@
         }
       ],
       "name": "LootWithdrawn",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "loot",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "winnerGetLoot",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "commit3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "reveal3HPeriod",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "winner3HPeriod",
+          "type": "uint8"
+        }
+      ],
+      "name": "NewGame",
       "type": "event"
     },
     {

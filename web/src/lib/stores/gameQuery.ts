@@ -200,6 +200,24 @@ export const toWithdraw: Readable<QueryState<GameState>>  = derived([gameQuery],
 })
 
 
+export const toUpdate: Readable<QueryState<GameState>>  = derived([gameQuery], ([gameState]) => {
+  return {
+    step: gameState.step,
+    data: gameState.data && gameState.data.result ? {
+      result: {
+        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => !v.deck && !v.withdrawn  && v.player.id === gameState.data.currentPlayer.toLowerCase()),
+        yooLootGame: {
+          numLoots: gameState.data.result.yooLootGame?.numLoots || "0",
+        }
+      },
+      loading: gameState.data.loading,
+      currentPlayer: gameState.data.currentPlayer
+    }: undefined,
+    error: gameState.error
+  }
+})
+
+
 export const toWinner: Readable<QueryState<GameState>>  = derived([gameQuery], ([gameState]) => {
   return {
     step: gameState.step,

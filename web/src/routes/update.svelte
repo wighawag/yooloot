@@ -1,7 +1,7 @@
 <script lang="ts">
   import WalletAccess from '$lib/WalletAccess.svelte';
   import NavButton from '$lib/components/navigation/NavButton.svelte';
-  import type {NFT} from '$lib/stores/originalloot';
+  import type {Deck, NFT} from '$lib/stores/originalloot';
   import {nftsof} from '$lib/stores/originalloot';
   import {wallet, flow, chain} from '$lib/stores/wallet';
   import commitFlow from '$lib/stores/commitFlow';
@@ -11,6 +11,7 @@
   import gameState from '$lib/stores/gamestate';
   import { LootContract } from '$lib/config';
   import { timeToText } from '$lib/utils';
+  import { toUpdate } from '$lib/stores/gameQuery';
 
 
   let lootId;
@@ -48,7 +49,7 @@
   let deckString8 = 1;
 
   function chooseDeck() {
-    const deck = [deckString1, deckString2, deckString3, deckString4, deckString5, deckString6, deckString7, deckString8];
+    const deck: Deck = [deckString1, deckString2, deckString3, deckString4, deckString5, deckString6, deckString7, deckString8];
     // const deck = [parseInt(deckString1), parseInt(deckString2), parseInt(deckString3), parseInt(deckString4), parseInt(deckString5), parseInt(deckString6), parseInt(deckString7), parseInt(deckString8)];
     if (deck.length !== 8) {
       throw new Error(`invalid deck: length:${deck.length}, need to be 8`);
@@ -88,8 +89,22 @@
       <p class="text-green-400">Note: This is the page to update a deck already published. If you want to submit a completely new deck go <a class="underline" href={url('commit/')}>here</a></p>
     {/if}
 
-
-    <label for="lootId">LootId to replace</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
+    {#if $toUpdate.data}
+    {#if $toUpdate.data.loading}
+      Loading...
+    {:else}
+    <label for="lootId">LootId to replace</label>
+    <select  class="mb-8 bg-black" bind:value={lootId}>
+      {#each $toUpdate.data.result.lootSubmitteds as loot}
+        <option value={loot.id}>
+          {loot.id}
+        </option>
+      {/each}
+    </select>
+    {/if}
+  {:else}
+  <label for="lootId">LootId to replace</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
+  {/if}
 
     <button class="my-4 p-1 border-2 border-red-600" on:click={update}>Just Change Deck Order</button>
 

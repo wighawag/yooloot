@@ -19,7 +19,7 @@ export type GameQueryResult = {
     withdrawn: boolean;
     takenByWinner: boolean;
   }[];
-  yoolootGame: {
+  yooLootGame: {
     numLoots: string;
   }
 }
@@ -171,8 +171,8 @@ export const toReveal: Readable<QueryState<GameState>>  = derived([gameQuery], (
     data: gameState.data && gameState.data.result ? {
       result: {
         lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => !v.deck && v.player.id === gameState.data.currentPlayer.toLowerCase()),
-        yoolootGame: {
-          numLoots: gameState.data.result.yoolootGame?.numLoots || "0",
+        yooLootGame: {
+          numLoots: gameState.data.result.yooLootGame?.numLoots || "0",
         }
       },
       loading: gameState.data.loading,
@@ -188,8 +188,8 @@ export const toWithdraw: Readable<QueryState<GameState>>  = derived([gameQuery],
     data: gameState.data && gameState.data.result ? {
       result: {
         lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => v.deck && !v.withdrawn  && v.player.id === gameState.data.currentPlayer.toLowerCase()),
-        yoolootGame: {
-          numLoots: gameState.data.result.yoolootGame?.numLoots || "0",
+        yooLootGame: {
+          numLoots: gameState.data.result.yooLootGame?.numLoots || "0",
         }
       },
       loading: gameState.data.loading,
@@ -206,8 +206,8 @@ export const toWinner: Readable<QueryState<GameState>>  = derived([gameQuery], (
     data: gameState.data && gameState.data.result ? {
       result: {
         lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => v.deck && !v.withdrawn  && v.player.id !== gameState.data.currentPlayer.toLowerCase()),
-        yoolootGame: {
-          numLoots: gameState.data.result.yoolootGame?.numLoots || "0",
+        yooLootGame: {
+          numLoots: gameState.data.result.yooLootGame?.numLoots || "0",
         }
       },
       loading: gameState.data.loading,

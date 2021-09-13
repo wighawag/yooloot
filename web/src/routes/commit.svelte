@@ -10,7 +10,8 @@
   import { url } from '$lib/utils/url';
   import gameState from '$lib/stores/gamestate';
   import { LootContract } from '$lib/config';
-import { timeToText } from '$lib/utils';
+  import { timeToText } from '$lib/utils';
+  import { gameQuery } from '$lib/stores/gameQuery';
 
   $: nfts = nftsof($wallet.address);
 
@@ -67,7 +68,14 @@ import { timeToText } from '$lib/utils';
       Commit Phase is over, time to <a href={url(destination)} class="border-red-600 border-2 p-2 m-2">{destinationTitle}</a>
 
     {:else if $gameState.timeLeftBeforeNextPhase}
-      <p>{timeToText($gameState.timeLeftBeforeNextPhase)} left</p>
+
+      {#if $gameQuery.data?.result?.yooLootGame?.numLoots}
+      <p class="m-2">{$gameQuery.data.result.yooLootGame.numLoots} Loot Submitted.</p>
+      {/if}
+
+      <p>{timeToText($gameState.timeLeftBeforeNextPhase)} left to participate!</p>
+      <p class="mb-2">Then you ll have to come back to reveal your Loot, else you lose it!</p>
+
       <p class="text-green-400">Note: If you want to update the deck order of one your sbmitted deck, please go <a class="underline" href={url('update/')}>here</a></p>
     {/if}
 

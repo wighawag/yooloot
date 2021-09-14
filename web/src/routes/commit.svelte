@@ -228,7 +228,7 @@
     <div class="text-center">
       <h2>Loot {$commitFlow.data.loot.id} submited with nonce {$commitFlow.data.nonce} and the following deck :</h2>
       <p> {$commitFlow.data.deck}</p> <!-- TODO show power of each card-->
-      <p>You might as well take note of it. You ll need for the reveal phase</p>
+      <p class="text-red-600">Please make note of it. You ll need for the reveal phase</p>
       <p>In term of power, this is the following :</p>
       <p> {$commitFlow.data.deck.map((i) => $commitFlow.data.loot.deckPower[i-1])}</p> <!-- TODO show power of each card-->
       <button

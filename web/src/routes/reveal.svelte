@@ -22,7 +22,7 @@
   let lootId: string;
   let nonceString: string;
 
-  function reveal() {
+  function reveal(bruteForce?: boolean) {
     const deck = [deckString1, deckString2, deckString3, deckString4, deckString5, deckString6, deckString7, deckString8];
     // const deck = [parseInt(deckString1), parseInt(deckString2), parseInt(deckString3), parseInt(deckString4), parseInt(deckString5), parseInt(deckString6), parseInt(deckString7), parseInt(deckString8)];
     if (deck.length !== 8) {
@@ -41,13 +41,24 @@
         throw new Error(`invalid deck: all number, 0,1,2,3,4,5,6,7 need to be present one and only one time`);
       }
     }
-    const nonce = parseInt(nonceString);
 
-    if (isNaN(nonce)) {
-      throw new Error('invalid nonce');
+
+    const split = lootId.split(':');
+    let transactionHash: string | undefined = undefined;
+    let lootIdToUse = lootId;
+    if (split.length > 1) {
+      transactionHash = split[1];
+      lootIdToUse = split[0];
     }
 
-    revealFlow.revealLootDeck(lootId, deck as [number, number, number, number, number, number,number, number], nonce);
+    let nonce: number | undefined = undefined;
+    if (!transactionHash) {
+      nonce = parseInt(nonceString);
+      if (isNaN(nonce)) {
+        throw new Error('invalid nonce');
+      }
+    }
+    revealFlow.revealLootDeck(lootIdToUse, deck as [number, number, number, number, number, number,number, number], nonce, transactionHash, bruteForce);
   }
 
   $: revealOver = ($gamestate.phase !== "IDLE" && $gamestate.phase !== "LOADING" && $gamestate.phase !== "COMMIT"  && $gamestate.phase !== "REVEAL");
@@ -101,7 +112,7 @@
         <label for="lootId">LootId</label>
         <select  class="mb-8 bg-black" bind:value={lootId}>
           {#each $toReveal.data.result.lootSubmitteds as loot}
-            <option value={loot.id}>
+            <option value={loot.id + (loot.transactionHash ? ':' +loot.transactionHash : '')}>
               {loot.id}
             </option>
           {/each}
@@ -109,6 +120,8 @@
         {/if}
       {:else}
       <label for="lootId">LootId</label><input id="lootId" type="text" class="bg-black" bind:value={lootId}/>
+
+      <label for="nonce">nonce</label><input id="lootId" type="text" class="bg-black" bind:value={nonceString}/>
       {/if}
 
       <label for="lootId">deck</label>
@@ -125,9 +138,12 @@
 
       </div>
 
-      <label for="nonce">nonce</label><input id="lootId" type="text" class="bg-black" bind:value={nonceString}/>
 
-      <button class="my-4 p-1 border-2 border-red-600" on:click={reveal}>REVEAL</button>
+      <button class="my-4 p-1 border-2 border-red-600" on:click={() => reveal()}>REVEAL</button>
+
+      <p class="mt-10 text-sm">If you cannot recall what deck you played, we could attempt to brute-force it:</p>
+
+      <button class="text-sm my-4 p-1 border-2 border-red-600" on:click={()=> reveal(true)}>brute-force</button>
     {/if}
   </section>
 </WalletAccess>
@@ -159,5 +175,11 @@
       </div>
     </Modal>
 
+    {:else if $revealFlow.step === 'BRUTE_FORCING'}
+    <Modal on:close={() => revealFlow.cancel()}>
+      <div class="text-center">
+        BRUTE FORCING...
+      </div>
+    </Modal>
   {/if}
 {/if}

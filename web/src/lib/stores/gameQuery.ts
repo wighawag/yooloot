@@ -172,7 +172,7 @@ export const toReveal: Readable<QueryState<GameState>>  = derived([gameQuery], (
     step: gameState.step,
     data: gameState.data && gameState.data.result ? {
       result: {
-        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) =>v.player.id === gameState.data.currentPlayer.toLowerCase()),
+        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => !v.deck && v.player.id === gameState.data.currentPlayer.toLowerCase()),
         yooLootGame: {
           numLoots: gameState.data.result.yooLootGame?.numLoots || "0",
         }

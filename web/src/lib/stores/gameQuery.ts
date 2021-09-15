@@ -184,6 +184,23 @@ export const toReveal: Readable<QueryState<GameState>>  = derived([gameQuery], (
   }
 })
 
+export const allToReveal: Readable<QueryState<GameState>>  = derived([gameQuery], ([gameState]) => {
+  return {
+    step: gameState.step,
+    data: gameState.data && gameState.data.result ? {
+      result: {
+        lootSubmitteds: gameState.data.result.lootSubmitteds.filter((v) => !v.deck),
+        yooLootGame: {
+          numLoots: gameState.data.result.yooLootGame?.numLoots || "0",
+        }
+      },
+      loading: gameState.data.loading,
+      currentPlayer: gameState.data.currentPlayer
+    }: undefined,
+    error: gameState.error
+  }
+})
+
 export const toWithdraw: Readable<QueryState<GameState>>  = derived([gameQuery], ([gameState]) => {
   return {
     step: gameState.step,

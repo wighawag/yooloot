@@ -2,7 +2,7 @@
   import WalletAccess from '$lib/WalletAccess.svelte';
   import revealFlow from '$lib/stores/revealFlow';
   import gamestate from '$lib/stores/gamestate';
-  import {toReveal} from '$lib/stores/gameQuery';
+  import {allToReveal, toReveal} from '$lib/stores/gameQuery';
   import { url } from '$lib/utils/url';
   import Modal from '$lib/components/Modal.svelte';
   import { timeToText } from '$lib/utils';
@@ -100,6 +100,10 @@
     {:else if revealNotReady}
       The commit phase is not over yet, please go to <a href={url('commit/')} class="border-red-600 border-2 p-2 m-2">here</a> to play!
     {:else if revealReady}
+
+    {#if $allToReveal.data?.result.lootSubmitteds}
+    <p>{$allToReveal.data?.result.lootSubmitteds.length} Loot yet to be revealed!</p>
+    {/if}
 
     {#if $gamestate.timeLeftBeforeNextPhase}
     <p class="text-green-400 pb-4">{timeToText($gamestate.timeLeftBeforeNextPhase)} left</p>

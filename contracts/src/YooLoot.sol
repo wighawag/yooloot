@@ -257,12 +257,14 @@ contract YooLoot {
 
         for (uint8 i = 0; i < 8; i++) {
             uint8 extra = 0;
-            uint8 tmpScore;
+            uint8 tmpScore = 0;
             for (uint8 j = 0; j < 8; j++) {
                 if (winnerLootPerRound[j] == 0) {
                     extra += (j + 1);
-                } else if (winnerLootPerRound[j] == winnerLootPerRound[i]) {
-                    tmpScore += extra + (j + 1);
+                } else {
+                    if (winnerLootPerRound[j] == winnerLootPerRound[i]) {
+                        tmpScore += extra + (j + 1);
+                    }
                     extra = 0;
                 }
             }

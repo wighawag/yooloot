@@ -9,6 +9,7 @@ import {derived, writable} from 'svelte/store';
 import { chain, wallet } from './wallet';
 import type { ChainData, WalletData } from 'web3w';
 import { YooLootContract } from '$lib/config';
+import type { Deck } from './originalloot';
 
 export type GameQueryResult = {
   lootSubmitteds: {
@@ -253,3 +254,67 @@ export const toWinner: Readable<QueryState<GameState>>  = derived([gameQuery], (
     error: gameState.error
   }
 })
+
+type PowerSlots = {[power: number]: string[]};
+
+type Rounds = [PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots];
+
+type PowerSlotsAsArray = {power: number, loots: string[]}[]
+type RoundArrays = [PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray];
+
+type GameResult = {
+  rounds: RoundArrays;
+}
+
+class GameResultStore implements Readable<GameResult> {
+
+  private cache: {[lootId: string]: Deck} = {};
+  private store: Writable<GameResult>;
+
+  constructor() {
+    this.store = writable({rounds: [[],[],[],[],[],[],[],[]]})
+    gameQuery.subscribe(this.onData.bind(this))
+  }
+
+  async onData(gameState: QueryState<GameState>) {
+    const rounds: RoundArrays = [[],[],[],[],[],[],[],[]];
+    if (!gameState.data?.result?.lootSubmitteds) {
+      return;
+    }
+    for (const loot of gameState.data.result.lootSubmitteds) {
+      if (loot.deck) {
+        let lootPower = this.cache[loot.id];
+        if (!lootPower) {
+          lootPower = await wallet.contracts[YooLootContract].getDeckPower(loot.id, [1,2,3,4,5,6,7,8], YooLootContract === 'LootForEveryone');
+          this.cache[loot.id] = lootPower;
+        }
+
+        for(let i = 0; i < 8; i++) {
+          const power = lootPower[loot.deck[i] - 1];
+          const slots = rounds[i];
+          let slot = slots.find((v) => v.power == power);
+          if (!slot) {
+            slot = {power, loots: []};
+            rounds[i].push(slot);
+          }
+          slot.loots.push(loot.id);
+        }
+
+      }
+
+    }
+    this.store.set({rounds});
+  }
+
+  subscribe(
+    run: Subscriber<GameResult>,
+    invalidate?: Invalidator<GameResult> | undefined
+  ): Unsubscriber {
+    return this.store.subscribe(run, invalidate);
+  }
+
+}
+
+
+export const gameResult = new GameResultStore();
+

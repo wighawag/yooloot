@@ -5,7 +5,7 @@
 import { url } from '$lib/utils/url';
 import { flow, wallet } from '$lib/stores/wallet';
 import { YooLootContract } from '$lib/config';
-import { toWinner, toWithdraw } from '$lib/stores/gameQuery';
+import { gameResult, toWinner, toWithdraw } from '$lib/stores/gameQuery';
 
 
   let winnerLootId: string;
@@ -93,6 +93,22 @@ import { toWinner, toWithdraw } from '$lib/stores/gameQuery';
 
       <button class="my-4 p-1 border-2 border-red-600" on:click={withdraw}>WITHDRAW</button>
   {/if}
+
+
+  {#if $gameResult}
+  <h2 class="pt-8 text-2xl text-green-600 font-extrabold">THE BATTLE</h2>
+  {#each $gameResult.rounds as round, index}
+  <p class="pt-8">Round {index+1}</p>
+  <ul>
+    {#each round as powerBattles}
+    <li>
+      {powerBattles.power}
+      {#each powerBattles.loots as loot}<p class="px-8">{loot}</p>{/each}
+    </li>
+    {/each}
+  </ul>
+  {/each}
+{/if}
 </section>
 
 </WalletAccess>

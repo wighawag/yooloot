@@ -281,7 +281,7 @@ class GameResultStore implements Readable<GameResult> {
       if (loot.deck) {
         let lootPower = this.cache[loot.id];
         if (!lootPower) {
-          lootPower = await wallet.contracts[YooLootContract].getDeckPower(loot.id, [1,2,3,4,5,6,7,8], YooLootContract === 'LootForEveryone');
+          lootPower = await wallet.contracts[YooLootContract].getDeckPower(loot.id, [1,2,3,4,5,6,7,8], YooLootContract === 'YooLoot_lfe');
           this.cache[loot.id] = lootPower;
         }
 

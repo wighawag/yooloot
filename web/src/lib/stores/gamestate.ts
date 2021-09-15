@@ -15,6 +15,7 @@ export type GameState = {
   timeLeftBeforeNextPhase?: number;
   winner?: string;
   winnerLoot?: string;
+  winnerScore?: number;
 };
 
 class GameStateStore extends BaseStore<GameState> {
@@ -99,13 +100,28 @@ class GameStateStore extends BaseStore<GameState> {
         this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'})
         if (!this.$store.winner) {
           const winnerInfo = await wallet.contracts[YooLootContract].winner();
-          this.setPartial({winner: winnerInfo.winnerAddress, winnerLoot: winnerInfo.winnerLootId});
+          this.setPartial({winner: winnerInfo.winnerAddress, winnerLoot: winnerInfo.winnerLootId, winnerScore: winnerInfo.winnerScore});
+          console.log({winnerScore: winnerInfo.winnerScore.toString(), winnerAddress: winnerInfo.winnerAddress, winnerLootId: winnerInfo.winnerLootId.toString()});
         }
       } else if (currentTime > this.$store.revealPeriodEnd) {
         console.log('reveal period ended');
         if (!this.$store.winner) {
           const winnerInfo = await wallet.contracts[YooLootContract].winner();
-          this.setPartial({winner: winnerInfo.winnerAddress, winnerLoot: winnerInfo.winnerLootId});
+          this.setPartial({winner: winnerInfo.winnerAddress, winnerLoot: winnerInfo.winnerLootId, winnerScore: winnerInfo.winnerScore});
+          console.log({winnerScore: winnerInfo.winnerScore.toString(), winnerAddress: winnerInfo.winnerAddress, winnerLootId: winnerInfo.winnerLootId.toString()});
+
+          // const json = [];
+          // for (let i = 0; i < 8; i++) {
+          //   const round = [];
+          //   for (let j = 0; j < 132; j ++) {
+          //     const result = (await wallet.contracts[YooLootContract].rounds(i,j)).toString();
+          //     console.log (`round ${i}, power: ${j} => ${result}`)
+          //     round.push(result);
+          //   }
+          //   json.push(round);
+          // }
+          // console.log(json);
+
         }
         if (this.$store.winner === "0x0000000000000000000000000000000000000000") {
           this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'});

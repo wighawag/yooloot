@@ -36,7 +36,7 @@ import { gameResult, toWinner, toWithdraw } from '$lib/stores/gameQuery';
   {#if withdrawNotReady}
     <p>The Withdraw phase is not ready yet, please go to <a href={url(destination)} class="border-red-600 border-2 p-2 m-2">here</a> to {destinationTitle}</p>
   {:else}
-    <p>Winner is {$gamestate.winner}</p>
+    <p>Winner is {$gamestate.winner} (loot: {$gamestate.winnerLoot})</p>
   {/if}
   {#if !winnerWithdrawOver}
     {#if $wallet.address && $wallet.address.toLowerCase() === $gamestate.winner?.toLowerCase()}
@@ -102,8 +102,11 @@ import { gameResult, toWinner, toWithdraw } from '$lib/stores/gameQuery';
   <ul>
     {#each round as powerBattles}
     <li>
-      {powerBattles.power}
-      {#each powerBattles.loots as loot}<p class="px-8">{loot}</p>{/each}
+      <p class={powerBattles.score > 0 ? 'text-green-500' : ''}>{powerBattles.power}</p>
+      {#each powerBattles.loots as loot}
+        <p class={"px-8" + (powerBattles.score > 0 ? ' text-green-500' : '')}>{loot}</p>
+        {#if powerBattles.score > 0}<p class="text-green-400 text-2xl"> => {powerBattles.score} points</p>{/if}
+      {/each}
     </li>
     {/each}
   </ul>

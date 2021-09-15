@@ -255,11 +255,7 @@ export const toWinner: Readable<QueryState<GameState>>  = derived([gameQuery], (
   }
 })
 
-type PowerSlots = {[power: number]: string[]};
-
-type Rounds = [PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots, PowerSlots];
-
-type PowerSlotsAsArray = {power: number, loots: string[]}[]
+type PowerSlotsAsArray = {power: number, loots: string[], score: number}[]
 type RoundArrays = [PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray, PowerSlotsAsArray];
 
 type GameResult = {
@@ -296,12 +292,27 @@ class GameResultStore implements Readable<GameResult> {
           if (!slot) {
             slot = {power, loots: []};
             rounds[i].push(slot);
+          } else {
+            slot.score = 0;
           }
           slot.loots.push(loot.id);
         }
 
       }
 
+    }
+
+    let extra = 0;
+    for(let i = 0; i < 8; i++) {
+      const slots = rounds[i].sort((a,b) => b.power - a.power )
+      rounds[i] = slots;
+      const winnerSlot = slots.find((v) => v.loots.length === 1);
+      if (!winnerSlot) {
+        extra = i+1;
+      } else {
+        winnerSlot.score = i+1 + extra;
+        extra = 0;
+      }
     }
     this.store.set({rounds});
   }

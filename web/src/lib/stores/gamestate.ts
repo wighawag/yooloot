@@ -14,6 +14,7 @@ export type GameState = {
   winnerPeriodEnd?: number;
   timeLeftBeforeNextPhase?: number;
   winner?: string;
+  winnerLoot?: string;
 };
 
 class GameStateStore extends BaseStore<GameState> {
@@ -98,13 +99,13 @@ class GameStateStore extends BaseStore<GameState> {
         this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'})
         if (!this.$store.winner) {
           const winnerInfo = await wallet.contracts[YooLootContract].winner();
-          this.setPartial({winner: winnerInfo.winnerAddress});
+          this.setPartial({winner: winnerInfo.winnerAddress, winnerLoot: winnerInfo.winnerLootId});
         }
       } else if (currentTime > this.$store.revealPeriodEnd) {
         console.log('reveal period ended');
         if (!this.$store.winner) {
           const winnerInfo = await wallet.contracts[YooLootContract].winner();
-          this.setPartial({winner: winnerInfo.winnerAddress});
+          this.setPartial({winner: winnerInfo.winnerAddress, winnerLoot: winnerInfo.winnerLootId});
         }
         if (this.$store.winner === "0x0000000000000000000000000000000000000000") {
           this.setPartial({timeLeftBeforeNextPhase: 0, phase: 'WITHDRAW'});

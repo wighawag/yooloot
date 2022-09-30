@@ -57,6 +57,14 @@ contract YooLoot {
         _paramaters.periodLength = periodLength;
     }
 
+    function freeFormInit(
+        ILoot loot,
+        bool winnerGetLoot,
+        uint24 periodLength
+    ) public {
+        _init(loot, winnerGetLoot, periodLength);
+    }
+
     function init(
         ILoot loot,
         bool winnerGetLoot,
@@ -74,6 +82,16 @@ contract YooLoot {
         address yooloot = Clones.clone(address(this));
         YooLoot(yooloot).init(loot, winnerGetLoot, periodLength);
         _lootXPRegistry.setSource(yooloot, true);
+        return yooloot;
+    }
+
+    function freeFormClone(
+        ILoot loot,
+        bool winnerGetLoot,
+        uint24 periodLength
+    ) external returns (address) {
+        address yooloot = Clones.clone(address(this));
+        YooLoot(yooloot).freeFormInit(loot, winnerGetLoot, periodLength);
         return yooloot;
     }
 
@@ -116,38 +134,45 @@ contract YooLoot {
     }
 
     // solhint-disable-next-line code-complexity
-    function winner() public view returns (address) {
+    function winner()
+        public
+        view
+        returns (
+            address winnerAddress,
+            uint256 winnerLootId,
+            uint256 winnerScore
+        )
+    {
         require(block.timestamp - _paramaters.startTime > 2 * _paramaters.periodLength, "REVEAL_PERIOD_NOT_OVER");
-        uint256[8] memory winners;
+        uint256[8] memory winnerLootPerRound;
         for (uint8 round = 0; round < 8; round++) {
             for (uint8 power = 126; power > 0; power--) {
                 uint256 lootId = _rounds[round][power - 1];
                 if (lootId > 0 && lootId != 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
-                    winners[round] = lootId;
+                    winnerLootPerRound[round] = lootId;
                     break;
                 }
             }
         }
 
-        uint256 theWinner;
-        uint256 score;
         for (uint8 i = 0; i < 8; i++) {
             uint8 extra = 0;
             uint8 tmpScore;
             for (uint8 j = 0; j < 8; j++) {
-                if (winners[j] == 0) {
+                if (winnerLootPerRound[j] == 0) {
                     extra += (j + 1);
-                } else if (winners[j] == winners[i]) {
-                    tmpScore = extra + (j + 1);
+                } else if (winnerLootPerRound[j] == winnerLootPerRound[i]) {
+                    tmpScore += extra + (j + 1);
                     extra = 0;
                 }
             }
-            if (tmpScore >= score) {
+            if (tmpScore >= winnerScore) {
                 // give more power to player who win later rounds
-                theWinner = winners[i];
+                winnerLootId = winnerLootPerRound[i];
+                winnerScore = tmpScore;
             }
         }
-        return _deposits[theWinner];
+        winnerAddress = _deposits[winnerLootId];
     }
 
     // solhint-disable-next-line code-complexity
@@ -184,7 +209,8 @@ contract YooLoot {
     function claimVictoryLoot(uint256 lootToPick) external {
         require(_paramaters.winnerGetLoot, "NO_LOOT_TO_WIN");
         require(block.timestamp - _paramaters.startTime < 3 * _paramaters.periodLength, "VICTORY_PERIOD_OVER");
-        require(winner() == msg.sender, "NOT_WINNER");
+        (address winnerAddress, , ) = winner();
+        require(winnerAddress == msg.sender, "NOT_WINNER");
         require(_deposits[lootToPick] != msg.sender, "ALREADY_OWNER");
         _paramaters.loot.transferFrom(address(this), msg.sender, lootToPick);
         _paramaters.startTime = 1;
@@ -192,7 +218,8 @@ contract YooLoot {
 
     function claimVictoryERC20(IERC20 token) external {
         require(address(token) != address(_paramaters.loot), "INVALID_ERC20");
-        require(winner() == msg.sender, "NOT_WINNER");
+        (address winnerAddress, , ) = winner();
+        require(winnerAddress == msg.sender, "NOT_WINNER");
         token.transfer(msg.sender, token.balanceOf(address(this)));
     }
 
@@ -207,10 +234,12 @@ contract YooLoot {
             "DID_NOT_REVEAL"
         );
         _paramaters.loot.transferFrom(address(this), msg.sender, lootId);
-        if (winner() == msg.sender) {
-            _lootXPRegistry.addXp(lootId, 1000);
+        (, uint256 winnerLootId, uint256 winnerScore) = winner();
+        if (lootId == winnerLootId) {
+            _lootXPRegistry.addXp(lootId, 10000 * winnerScore);
         } else {
-            _lootXPRegistry.addXp(lootId, 10);
+            uint256 score = individualScore(lootId);
+            _lootXPRegistry.addXp(lootId, 100 + 1000 * score);
         }
     }
 

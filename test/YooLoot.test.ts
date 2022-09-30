@@ -152,11 +152,13 @@ describe('YooLoot', function () {
 
     await increaseTime(7 * 24 * 60 * 60, true);
 
-    const winner = await YooLoot.winner();
+    const {winnerAddress, winnerLootId, winnerScore} = await YooLoot.winner();
     const scoreFor0 = (await YooLoot.individualScore(user0.tokenId)).toNumber();
     const scoreFor1 = (await YooLoot.individualScore(user1.tokenId)).toNumber();
     console.log({
-      winner,
+      winnerAddress,
+      winnerLootId: winnerLootId.toString(),
+      winnerScore: winnerScore.toNumber(),
       user0: users[0].address,
       user1: users[1].address,
       scoreFor0,
